@@ -12,6 +12,7 @@ import Sequelize from "sequelize"
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
+import { Exception } from "../../utils/exception.js"
 
 export class EntradaSaidaController {
 
@@ -38,7 +39,7 @@ export class EntradaSaidaController {
         */
         
         const movCabs = await db.MovCab.findAndCountAll({
-          attributes: ['transacao', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
+          attributes: ['transacao1', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
           include: [
             {model: db.Parceiro, as: 'parceiro', attributes: ['nome']},
             {model: db.TipoEntSai, as: 'tipoEntSai', attributes: ['tipo', 'descricao']}
@@ -59,7 +60,7 @@ export class EntradaSaidaController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})

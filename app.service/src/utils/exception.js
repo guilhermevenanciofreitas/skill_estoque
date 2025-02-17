@@ -17,7 +17,20 @@ export class Exception {
   }
 
   static error(res, error) {
-    res.status(500).json({message: error.message});
+
+    const erros = []
+
+    // Verifica se há erros dentro de `original.errors`
+    if (error?.original?.errors && Array.isArray(error?.original?.errors)) {
+        error.original.errors.forEach((err) => {
+            erros.push(err.message)
+        })
+    } else {
+        erros.push(error?.message)
+    }
+
+    res.status(500).json({erros})
+
   }
 
 }

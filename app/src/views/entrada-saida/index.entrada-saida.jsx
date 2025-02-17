@@ -13,6 +13,7 @@ import ViewEntradaSaida from './view.entrada-saida'
 
 import _ from 'lodash'
 import { times } from 'lodash'
+import { Exception } from '../../utils/exception'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -34,26 +35,43 @@ class EntradaSaida extends React.Component {
     this.setState({request: {filter}}, () => this.onSearch())
   }
 
-  onSearch = () => {
-    this.setState({loading: true}, async () => {
-      try {
-        await new Service().Post('entrada-saida/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
-      } catch (error) {
-        console.error(error.message)
-      }
-    })
+  onSearch = async () => {
+    try {
+      
+      this.setState({loading: true})
+      const result = await new Service().Post('entrada-saida/lista', this.state.request)
+      this.setState({...result.data})
+
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      this.setState({loading: false})
+    }
   }
 
   onEditarEntradaSaida = async (unidade) => {
-    this.ViewEntradaSaida.current.editarEntradaSaida(unidade).then((cte) => {
-      if (cte) this.onSearch()
-    })
+    try {
+
+      const entSai = await this.ViewEntradaSaida.current.editarEntradaSaida(unidade)
+      if (entSai) this.onSearch()
+
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      this.setState({loading: false})
+    }
   }
 
   onNovaEntradaSaida = () => {
-    this.ViewEntradaSaida.current.novaEntradaSaida({tipo: 1}).then((cte) => {
-      if (cte) this.onSearch()
-    })
+    try {
+
+      const entSai = this.ViewEntradaSaida.current.novaEntradaSaida({tipo: 1})
+      if (entSai) this.onSearch()
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      this.setState({loading: false})
+    }
   }
 
   columns = [
