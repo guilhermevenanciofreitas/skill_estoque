@@ -18,18 +18,18 @@ export class Exception {
 
   static error(res, error) {
 
-    const errors = []
+    const erros = []
 
     // Verifica se há erros dentro de `original.errors`
-    if (error?.original?.errors && Array.isArray(error?.original?.errors)) {
+    if (error.original?.errors && Array.isArray(error.original.errors)) {
         error.original.errors.forEach((err) => {
-          errors.push(err.message)
+            erros.push(err.message)
         })
     } else {
-      errors.push(error?.message)
+        erros.push(error.message)
     }
 
-    res.status(500).json({errors})
+    res.status(500).json({erros})
 
   }
 

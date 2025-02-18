@@ -6,13 +6,14 @@ import dayjs from 'dayjs'
 import PageContent from '../../../components/PageContent'
 
 import { CustomBreadcrumb, CustomPagination, CustomSearch, DataTable } from '../../../controls'
-import { FaEllipsisV, FaFileDownload, FaPrint, FaUpload } from 'react-icons/fa'
+import { FaEdit, FaEllipsisV, FaFileDownload, FaPlusCircle, FaPrint, FaTrash, FaUpload } from 'react-icons/fa'
 import { Service } from '../../../service'
 
 import ViewProduto from './view.produto'
 
 import _ from 'lodash'
 import { times } from 'lodash'
+import { Exception } from '../../../utils/exception'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -37,9 +38,14 @@ class FinanceBankAccounts extends React.Component {
   onSearch = () => {
     this.setState({loading: true}, async () => {
       try {
-        await new Service().Post('cadastros/produto/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
+        
+        const result = await new Service().Post('cadastros/produto/lista', this.state.request)
+        this.setState({...result.data})
+        
       } catch (error) {
-        console.error(error.message)
+        Exception.error(error)
+      } finally {
+        this.setState({loading: false})
       }
     })
   }
@@ -98,9 +104,9 @@ class FinanceBankAccounts extends React.Component {
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
           
             <div>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} onClick={this.onNovoProduto}>&nbsp;Novo</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditaProduto(this.state?.selecteds[0]?.codprod)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoProduto}>&nbsp;Novo</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditaProduto(this.state?.selecteds[0]?.codprod)}>&nbsp;Editar</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
             </div>
             
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1}
