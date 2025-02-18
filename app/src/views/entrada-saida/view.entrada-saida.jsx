@@ -46,16 +46,16 @@ class ViewEntradaSaida extends React.Component {
             produto: this.state.produto,
             quantidade: this.state.quantidade ?? 0,
             precoUn: this.state.precoUn ?? 0,
-            //orig: this.state.orig,
-            //dest: this.state.dest
+            orig: this.state.orig,
+            dest: this.state.dest
         })
 
         this.setState({
             produto: undefined,
             quantidade: 0,
             precoUn: 0,
-            orig: '',
-            dest: '',
+            orig: undefined,
+            dest: undefined,
             items
         })
 
@@ -273,7 +273,7 @@ class ViewEntradaSaida extends React.Component {
                                     <Col md={5}>
                                         <div className='form-control'>
                                             <label className="textfield-filled">
-                                                <select value={this.state?.orig} onChange={(event) => this.setState({orig: event.target.value})} disabled={!(this.state?.tipoEntSai?.tipo == 'A')} >
+                                                <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} disabled={!(this.state?.tipoEntSai?.tipo == 'A')} >
                                                     <option value="">[Selecione]</option>
                                                     {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                 </select>
@@ -284,7 +284,7 @@ class ViewEntradaSaida extends React.Component {
                                     <Col md={5}>
                                         <div className='form-control'>
                                             <label className="textfield-filled">
-                                                <select value={this.state?.dest} onChange={(event) => this.setState({dest: event.target.value})} >
+                                                <select value={this.state?.dest?.codloc} onChange={(event) => this.setState({dest: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
                                                     <option value="">[Selecione]</option>
                                                     {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                 </select>
