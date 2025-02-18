@@ -9,6 +9,8 @@ import { Loading } from "../../../App";
 import _ from "lodash";
 import { Search } from "../../../search";
 import { Decimal } from "../../../utils/decimal";
+import { Exception } from '../../../utils/exception'
+
 
 class ViewProduto extends React.Component {
 
@@ -52,13 +54,14 @@ class ViewProduto extends React.Component {
                 return
             }
 
-            await new Service().Post('cadastros/produto/salvar', produto).then(async (result) => {
-                await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
-                this.viewModal.current?.close(result.data)
-            })
+            const result = await new Service().Post('cadastros/produto/salvar', produto)
+            
+            await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
+            
+            this.viewModal.current?.close(result.data)
 
-        } catch (ex) {
-
+        } catch (error) {
+            Exception.error(error)
         } finally {
             this.setState({submting: false})
         }
@@ -86,7 +89,7 @@ class ViewProduto extends React.Component {
                             <Col md={9}>
                                 <div className='form-control'>
                                     <label class="textfield-filled">
-                                        <input type='text' value={this.state?.descricao} onChange={(event) => this.setState({descricao: event.target.value.toUpperCase()})} />
+                                        <input type='text' value={this.state?.descricao} onChange={(event) => this.setState({descricao: event.target.value.toUpperCase()})} maxLength={60} />
                                         <span>Nome</span>
                                     </label>
                                 </div>
