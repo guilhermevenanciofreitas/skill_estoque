@@ -4,6 +4,7 @@ import { FaSearch, FaSyncAlt } from "react-icons/fa"
 import _ from 'lodash'
 
 import './AutoComplete.css'
+import { Exception } from '../../utils/exception'
 
 const Result = React.createContext()
 
@@ -32,20 +33,16 @@ const AutoComplete = ({label, text, value = null, onSearch, onChange, children})
     }, [])
 
     const onInuptChange = async (value) => {
-
-        setSearch(value?.toUpperCase())
-
-        //if (_.isEmpty(value)) {
-        //    setData([])
-        //    return
-        //}
-
-        setLoading(true)
-
-        onSearch(value)
-            .then((data) => setData(data))
-            .finally(() => setLoading(false))
-
+        try {
+            setLoading(true)
+            setSearch(value?.toUpperCase())
+            const data = await onSearch(value)
+            setData(data)
+        } catch (error) {
+            Exception.error(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const onInputKeyDown = (event) => {

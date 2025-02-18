@@ -38,6 +38,29 @@ class ViewEntradaSaida extends React.Component {
         return this.viewModal.current.show()
     }
 
+    onAdicionarItem = () => {
+
+        var items = this.state?.items || []
+
+        items.push({
+            produto: this.state.produto,
+            quantidade: this.state.quantidade ?? 0,
+            precoUn: this.state.precoUn ?? 0,
+            //orig: this.state.orig,
+            //dest: this.state.dest
+        })
+
+        this.setState({
+            produto: undefined,
+            quantidade: 0,
+            precoUn: 0,
+            orig: '',
+            dest: '',
+            items
+        })
+
+    }
+
     salvarEntradaSaida = async () => {
         this.setState({submting: true}, async () => {
 
@@ -271,10 +294,10 @@ class ViewEntradaSaida extends React.Component {
                                     </Col>
                                             
                                     <Col md={1}>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.salvarEntradaSaida} disabled={this.state?.submting}><MdAddCircleOutline /> &nbsp;Inc.</Button>
+                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onAdicionarItem}><MdAddCircleOutline /> &nbsp;Inc.</Button>
                                     </Col>
                                     <Col md={1}>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='red' onClick={this.salvarEntradaSaida} disabled={this.state?.submting}><MdDelete /> &nbsp;Exc</Button>
+                                        <Button style={{marginTop: '10px'}} appearance="primary" color='red' onClick={this.salvarEntradaSaida}><MdDelete /> &nbsp;Exc</Button>
                                     </Col>
 
                                 </Row>
@@ -296,16 +319,18 @@ class ViewEntradaSaida extends React.Component {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>LARANJA</td>
-                                                <td>KG</td>
-                                                <td>10,00</td>
-                                                <td>1</td>
-                                                <td>10,00</td>
-                                                <td></td>
-                                                <td>DEPÓSITO</td>
-                                            </tr>
+                                            {_.map(this.state?.items, (item) =>
+                                                <tr>
+                                                    <td>{item.produto?.codprod}</td>
+                                                    <td>{item.produto?.descricao}</td>
+                                                    <td>KG</td>
+                                                    <td>{Decimal.format(item.quantidade)}</td>
+                                                    <td>{Decimal.format(item.precoUn)}</td>
+                                                    <td>{Decimal.format(item.quantidade * item.precoUn)}</td>
+                                                    <td>{item.orig?.descricao}</td>
+                                                    <td>{item.dest?.descricao}</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
