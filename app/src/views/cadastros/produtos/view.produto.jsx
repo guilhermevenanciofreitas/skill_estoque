@@ -8,6 +8,7 @@ import { Loading } from "../../../App";
 
 import _ from "lodash";
 import { Search } from "../../../search";
+import { Decimal } from "../../../utils/decimal";
 
 class ViewProduto extends React.Component {
 
@@ -67,37 +68,6 @@ class ViewProduto extends React.Component {
         this.viewModal.current?.close(produto)
     }
 
-    handleInputChange = (event) => {
-
-        let inputValue = event.target.value;
-
-        // Substitui a vírgula por ponto para permitir formato decimal
-        inputValue = inputValue.replace(',', '.');
-
-        // Verifica se o valor digitado é numérico e não está vazio
-        if (!isNaN(inputValue) && inputValue !== '') {
-        // Remover qualquer ponto ou vírgula antes de dividir, tratando os centavos como inteiros
-        const numValue = inputValue.replace(/\D/g, '');
-
-        // Se a string estiver vazia, deve retornar 0,00
-        if (numValue === '') {
-            this.setState({ custo: '0.00' });
-            return;
-        }
-
-        // Transformar o valor em número inteiro (com centavos) e formatar corretamente com 2 casas decimais
-        const valueInCents = parseInt(numValue);
-        const formattedValue = (valueInCents / 100).toFixed(2);
-
-        // Atualiza o estado com o valor formatado
-        this.setState({ custo: formattedValue });
-        } else {
-        // Se não for um valor válido, exibe 0,00
-        this.setState({ custo: '0.00' });
-        }
-
-    }
-
     render = () => {
         return (
             <Form autoComplete='off' onSubmit={this.submit}>
@@ -137,8 +107,8 @@ class ViewProduto extends React.Component {
                                     <label className="textfield-filled">
                                         <input
                                         type="text"
-                                        value={new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(this.state?.custo ?? 0)}
-                                        onChange={this.handleInputChange}
+                                        value={Decimal.format(this.state?.custo)}
+                                        onChange={(event) => this.setState({custo: Decimal.change(event.target.value)})}
                                         />
                                         <span>Custo</span>
                                     </label>

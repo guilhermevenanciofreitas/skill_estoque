@@ -39,7 +39,7 @@ export class EntradaSaidaController {
         */
         
         const movCabs = await db.MovCab.findAndCountAll({
-          attributes: ['transacao1', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
+          attributes: ['transacao', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
           include: [
             {model: db.Parceiro, as: 'parceiro', attributes: ['nome']},
             {model: db.TipoEntSai, as: 'tipoEntSai', attributes: ['tipo', 'descricao']}
@@ -92,7 +92,7 @@ export class EntradaSaidaController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -125,7 +125,7 @@ export class EntradaSaidaController {
         res.status(200).json(unidade)
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -161,7 +161,31 @@ export class EntradaSaidaController {
         res.status(200).json(tipoEntSai)
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
+  locais = async (req, res) => {
+    //await Authorization.verify(req, res).then(async ({company}) => {
+      try {
+
+        const db = new AppContext()
+
+        const where = [{}]
+
+        const locais = await db.Local.findAll({
+          attributes: ['codloc', 'descricao'],
+          order: [['descricao', 'asc']],
+          where
+        })
+
+        res.status(200).json(locais)
+
+      } catch (error) {
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})

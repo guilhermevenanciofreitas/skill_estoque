@@ -15,6 +15,7 @@ export class EntradaSaidaRoute {
         this.router.post('/editar', async (req, res) => await this.controller.editar(req, res))
         this.router.post('/salvar', async (req, res) => await this.controller.salvar(req, res))
         this.router.post('/tipo-operacoes', async (req, res) => await this.controller.tipoOperacoes(req, res))
+        this.router.post('/locais', async (req, res) => await this.controller.locais(req, res))
     }
 
 }

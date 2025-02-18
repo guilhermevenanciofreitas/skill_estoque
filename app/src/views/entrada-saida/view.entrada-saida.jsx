@@ -10,6 +10,7 @@ import _ from "lodash";
 import { Search } from "../../search";
 
 import dayjs from 'dayjs'
+import { Decimal } from "../../utils/decimal";
 
 class ViewEntradaSaida extends React.Component {
 
@@ -18,15 +19,22 @@ class ViewEntradaSaida extends React.Component {
     novaEntradaSaida = async (entradaSaida) => {
         if (this.state) for (const prop of Object.getOwnPropertyNames(this.state)) delete this.state[prop]
         this.setState({...entradaSaida})
+
+        await new Service().Post('entrada-saida/locais').then((result) => this.setState({locais: result.data}))
+
         return this.viewModal.current.show()
     }
 
     editarEntradaSaida = async (transacao) => {
         Loading.Show();
+
+        await new Service().Post('entrada-saida/locais').then((result) => this.setState({locais: result.data}))
+
         await new Service().Post('entrada-saida/editar', {transacao}).then(async (result) => {
             this.setState({...result.data})
             await this.onTipoOperacao(result.data.tipoEntSai.tipo)
         }).finally(() => Loading.Hide())
+
         return this.viewModal.current.show()
     }
 
@@ -54,37 +62,6 @@ class ViewEntradaSaida extends React.Component {
 
     close(role) {
         this.viewModal.current?.close(role)
-    }
-
-    handleInputChange = (event) => {
-
-        let inputValue = event.target.value;
-
-        // Substitui a vírgula por ponto para permitir formato decimal
-        inputValue = inputValue.replace(',', '.');
-
-        // Verifica se o valor digitado é numérico e não está vazio
-        if (!isNaN(inputValue) && inputValue !== '') {
-        // Remover qualquer ponto ou vírgula antes de dividir, tratando os centavos como inteiros
-        const numValue = inputValue.replace(/\D/g, '');
-
-        // Se a string estiver vazia, deve retornar 0,00
-        if (numValue === '') {
-            this.setState({ total: '0.00' });
-            return;
-        }
-
-        // Transformar o valor em número inteiro (com centavos) e formatar corretamente com 2 casas decimais
-        const valueInCents = parseInt(numValue);
-        const formattedValue = (valueInCents / 100).toFixed(2);
-
-        // Atualiza o estado com o valor formatado
-        this.setState({ total: formattedValue });
-        } else {
-        // Se não for um valor válido, exibe 0,00
-        this.setState({ total: '0.00' });
-        }
-
     }
 
     columns = [
@@ -193,8 +170,7 @@ class ViewEntradaSaida extends React.Component {
                                     <label className="textfield-filled">
                                         <input
                                         type="text"
-                                        value={new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(this.state?.total ?? 0)}
-                                        //onChange={this.handleInputChange}
+                                        value={Decimal.format(this.state?.total)}
                                         readOnly
                                         style={{textAlign: 'right'}}
                                         />
@@ -230,9 +206,9 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(this.state?.total ?? 0)}
-                                                //onChange={this.handleInputChange}
-                                                readOnly
+                                                value={Decimal.format(this.state?.quantidade)}
+                                                onFocus={(event) => event.target.select()}
+                                                onChange={(event) => this.setState({quantidade: Decimal.change(event.target.value)})}
                                                 style={{textAlign: 'right'}}
                                                 />
                                                 <span>Quantidade</span>
@@ -244,9 +220,9 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(this.state?.total ?? 0)}
-                                                //onChange={this.handleInputChange}
-                                                readOnly
+                                                value={Decimal.format(this.state?.precoUn)}
+                                                onFocus={(event) => event.target.select()}
+                                                onChange={(event) => this.setState({precoUn: Decimal.change(event.target.value)})}
                                                 style={{textAlign: 'right'}}
                                                 />
                                                 <span>Preço Un.</span>
@@ -258,8 +234,7 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(this.state?.total ?? 0)}
-                                                //onChange={this.handleInputChange}
+                                                value={Decimal.format(parseFloat(this.state?.quantidade ?? 0) * parseFloat(this.state?.precoUn ?? 0))}
                                                 readOnly
                                                 style={{textAlign: 'right'}}
                                                 />
@@ -275,11 +250,9 @@ class ViewEntradaSaida extends React.Component {
                                     <Col md={5}>
                                         <div className='form-control'>
                                             <label className="textfield-filled">
-                                                <select value={this.state?.tipoEntSai?.tipo} onChange={(event) => this.onTipoOperacao(event.target.value)} >
+                                                <select value={this.state?.orig} onChange={(event) => this.setState({orig: event.target.value})} disabled={!(this.state?.tipoEntSai?.tipo == 'A')} >
                                                     <option value="">[Selecione]</option>
-                                                    <option value="E">Entrada</option>
-                                                    <option value="S">Saída</option>
-                                                    <option value="A">Transferência</option>
+                                                    {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                 </select>
                                                 <span>Origem</span>
                                             </label>
@@ -288,11 +261,9 @@ class ViewEntradaSaida extends React.Component {
                                     <Col md={5}>
                                         <div className='form-control'>
                                             <label className="textfield-filled">
-                                                <select value={this.state?.tipoEntSai?.tipo} onChange={(event) => this.onTipoOperacao(event.target.value)} >
+                                                <select value={this.state?.dest} onChange={(event) => this.setState({dest: event.target.value})} >
                                                     <option value="">[Selecione]</option>
-                                                    <option value="E">Entrada</option>
-                                                    <option value="S">Saída</option>
-                                                    <option value="A">Transferência</option>
+                                                    {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                 </select>
                                                 <span>Destino</span>
                                             </label>
