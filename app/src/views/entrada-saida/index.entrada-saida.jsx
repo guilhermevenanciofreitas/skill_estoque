@@ -36,17 +36,18 @@ class EntradaSaida extends React.Component {
   }
 
   onSearch = async () => {
-    try {
-      
-      this.setState({loading: true})
-      const result = await new Service().Post('entrada-saida/lista', this.state.request)
-      this.setState({...result.data})
-
-    } catch (error) {
-      Exception.error(error)
-    } finally {
-      this.setState({loading: false})
-    }
+    this.setState({loading: true}, async () => {
+      try {
+        
+        const result = await new Service().Post('entrada-saida/lista', this.state.request)
+        this.setState({...result.data})
+        
+      } catch (error) {
+        Exception.error(error)
+      } finally {
+        this.setState({loading: false})
+      }
+    })
   }
 
   onEditarEntradaSaida = async (unidade) => {
