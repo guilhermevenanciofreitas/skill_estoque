@@ -152,7 +152,7 @@ export class EntradaSaidaController {
 
           await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
 
-          for (const item of movCab.items) {
+          for (const item of movCab.items || []) {
 
             const movItem = {
               transacao: movCab.transacao,
