@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Divider, Form, Loader, Message, Modal, toaster } from 'rsuite';
 import { Container, Row, Col } from 'react-grid-system';
 import { AutoComplete, DataTable, ViewModal } from "../../controls";
-import { MdAddCircleOutline, MdCheckCircleOutline, MdDelete } from "react-icons/md";
+import { MdAddCircleOutline, MdCheckCircleOutline, MdDelete, MdEdit } from "react-icons/md";
 import { Service } from "../../service";
 import { Loading } from "../../App";
 
@@ -12,6 +12,7 @@ import { Search } from "../../search";
 import dayjs from 'dayjs'
 import { Decimal } from "../../utils/decimal";
 import { Exception } from "../../utils/exception";
+import { FaEdit, FaPlusCircle, FaSave, FaTrash } from "react-icons/fa";
 
 class ViewEntradaSaida extends React.Component {
 
@@ -40,29 +41,6 @@ class ViewEntradaSaida extends React.Component {
         }).finally(() => Loading.Hide())
 
         return this.viewModal.current.show()
-    }
-
-    onAdicionarItem = () => {
-
-        var items = this.state?.items || []
-
-        items.push({
-            produto: this.state.produto,
-            qtde: this.state.qtde ?? 0,
-            punit: this.state.punit ?? 0,
-            orig: this.state.orig,
-            dest: this.state.dest
-        })
-
-        this.setState({
-            produto: undefined,
-            qtde: 0,
-            punit: 0,
-            orig: undefined,
-            dest: undefined,
-            items
-        })
-
     }
 
     salvarEntradaSaida = async () => {
@@ -118,6 +96,78 @@ class ViewEntradaSaida extends React.Component {
         } finally {
             this.setState({submting: false})
         }
+    }
+    
+    onSalvarItem = () => {
+
+        let items = this.state?.items || []
+
+        const item = {
+            id: this.state.id,
+            produto: this.state.produto,
+            qtde: this.state.qtde ?? 0,
+            punit: this.state.punit ?? 0,
+            orig: this.state.orig,
+            dest: this.state.dest
+        }
+
+        if (!this.state?.index)
+        {
+            items.push(item)
+
+        } else {
+
+            const index = items.findIndex((item) => item.index == this.state.index)
+
+            items[index] = item
+
+        }
+
+        let i = 1
+        _.map(items, (c) => {
+            c.index = i
+            i++
+        })
+
+        this.setState({items})
+        this.onLimparItem()
+        
+    }
+
+    onLimparItem = () => {
+        this.setState({
+            index: undefined,
+            id: undefined,
+            produto: undefined,
+            qtde: 0,
+            punit: 0,
+            orig: {codloc: ''},
+            dest: {codloc: ''},
+        })
+    }
+
+    onEditarItem = (index) => {
+
+        const item = this.state?.items.filter((item) => item.index == index)
+
+        const i = {...item[0]}
+
+        this.setState(i)
+
+    }
+
+    onDeleteItem = (index) => {
+
+        const resultado = confirm("Tem certeza de que deseja excluir este item?");
+        
+        if (!resultado) {
+            return
+        }
+
+        const items = this.state?.items.filter(item => item.index !== index)
+
+        this.setState({items})
+
     }
 
     onTipoOperacao = async (tipo) => {
@@ -256,7 +306,6 @@ class ViewEntradaSaida extends React.Component {
 
                             <Divider />
 
-                            
                             <Col md={6}>
                                 <div className='form-control'>
                                     <AutoComplete label='Produto' value={this.state?.produto} text={(item) => `${item.codprod} - ${item.descricao}`} onChange={(produto) => this.setState({produto})} onSearch={async (search) => await Search.produto(search)}>
@@ -317,7 +366,7 @@ class ViewEntradaSaida extends React.Component {
                                     <Col md={5}>
                                         <div className='form-control'>
                                             <label className="textfield-filled">
-                                                <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} disabled={!(this.state?.tipoEntSai?.tipo == 'A')} >
+                                                <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
                                                     <option value="">[Selecione]</option>
                                                     {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                 </select>
@@ -337,11 +386,9 @@ class ViewEntradaSaida extends React.Component {
                                         </div>
                                     </Col>
                                             
-                                    <Col md={1}>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onAdicionarItem}><MdAddCircleOutline /> &nbsp;Inc.</Button>
-                                    </Col>
-                                    <Col md={1}>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='red' onClick={this.salvarEntradaSaida}><MdDelete /> &nbsp;Exc</Button>
+                                    <Col md={2}>
+                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onLimparItem}><FaPlusCircle /> &nbsp;<font size='2'>Inlcuir</font></Button>
+                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onSalvarItem}><FaSave /> &nbsp;<font size='2'>Salvar</font></Button>
                                     </Col>
 
                                 </Row>
@@ -360,11 +407,12 @@ class ViewEntradaSaida extends React.Component {
                                             <th>Total</th>
                                             <th>Origem</th>
                                             <th>Destino</th>
+                                            <th>Excluir</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                             {_.map(this.state?.items, (item) =>
-                                                <tr>
+                                                <tr className="rdt_TableRow">
                                                     <td>{item.produto?.codprod}</td>
                                                     <td>{item.produto?.descricao}</td>
                                                     <td>KG</td>
@@ -373,6 +421,7 @@ class ViewEntradaSaida extends React.Component {
                                                     <td>{Decimal.format(item.qtde * item.punit)}</td>
                                                     <td>{item.orig?.descricao}</td>
                                                     <td>{item.dest?.descricao}</td>
+                                                    <td><div><FaTrash size='18px' color='tomato' style={{cursor: 'pointer'}} onClick={() => this.onDeleteItem(item.index)} /><FaEdit size='18px' color='orange' style={{cursor: 'pointer'}} onClick={() => this.onEditarItem(item.index)} /></div></td>
                                                 </tr>
                                             )}
                                         </tbody>
