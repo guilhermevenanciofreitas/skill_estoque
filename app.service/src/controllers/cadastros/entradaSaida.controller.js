@@ -83,7 +83,9 @@ export class EntradaSaidaController {
               {model: db.Parceiro, as: 'parceiro', attributes: ['codparc', 'nome']},
               {model: db.TipoEntSai, as: 'tipoEntSai', attributes: ['codentsai', 'tipo']},
               {model: db.MovItem, as: 'items', attributes: ['id', 'qtde', 'punit'], include: [
-                {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
+                {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
+                {model: db.Local, as: 'orig', attributes: ['codloc', 'descricao']},
+                {model: db.Local, as: 'dest', attributes: ['codloc', 'descricao']},
               ]}
             ],
             where: [{transacao}],
@@ -114,10 +116,9 @@ export class EntradaSaidaController {
           dtmov: req.body.dtmov,
           numdoc: req.body.numdoc,
           total: req.body.total,
-          obs: req.body.obs
+          obs: req.body.obs,
+          items: req.body.items
         }
-
-        console.log(movCab)
 
         const db = new AppContext();
 
@@ -131,6 +132,26 @@ export class EntradaSaidaController {
           } else {
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
+          }
+
+          for (const item of movCab.items) {
+
+            const movItem = {
+              transacao: movCab.transacao,
+              id: item.id,
+              codprod: item.produto?.codprod || null,
+              qtde: item.qtde,
+              punit: item.punit,
+              codloc1: item.orig?.codloc || null,
+              codloc2: item.dest?.codloc || null
+            }
+
+            if (_.isNil(item.id)) {
+              await db.MovItem.create(movItem, {transaction})
+            } else {
+              await db.MovItem.update(movItem, {where: [{id: item.id}], transaction})
+            }
+
           }
 
         })

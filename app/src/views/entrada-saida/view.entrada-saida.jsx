@@ -81,6 +81,23 @@ class ViewEntradaSaida extends React.Component {
                 'obs'
             ])
 
+            let movItems = []
+
+            for (const item of this.state.items) {
+                movItems.push(_.pick(item, [
+                    'id',
+                    'produto.codprod',
+                    'qtde',
+                    'punit',
+                    'orig.codloc',
+                    'dest.codloc',
+                ]))
+            }
+
+            movCab.items = movItems
+
+            console.log(movCab)
+
             const errors = []
             
             //if (_.isEmpty(produto.unidade)) {
@@ -220,7 +237,8 @@ class ViewEntradaSaida extends React.Component {
                                         <input
                                         type="text"
                                         value={Decimal.format(this.state?.total)}
-                                        readOnly
+                                        onFocus={(event) => event.target.select()}
+                                        onChange={(event) => this.setState({total: Decimal.change(event.target.value)})}
                                         style={{textAlign: 'right'}}
                                         />
                                         <span>Valor total</span>

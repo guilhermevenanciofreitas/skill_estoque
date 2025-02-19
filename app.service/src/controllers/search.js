@@ -79,5 +79,5 @@ export class SearchController {
         //    //Exception.unauthorized(res, error);
         //});
     }
-    
+
 }
