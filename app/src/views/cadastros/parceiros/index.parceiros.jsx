@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import PageContent from '../../../components/PageContent'
 
 import { CustomBreadcrumb, CustomPagination, CustomSearch, DataTable } from '../../../controls'
-import { FaEllipsisV, FaFileDownload, FaPrint, FaUpload } from 'react-icons/fa'
+import { FaEdit, FaEllipsisV, FaFileDownload, FaPlusCircle, FaPrint, FaTrash, FaUpload } from 'react-icons/fa'
 import { Service } from '../../../service'
 
 import ViewParceiro from './view.parceiro'
@@ -57,9 +57,9 @@ class CadastrosLocais extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.codparc, name: 'Código', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.tipo, name: 'Tipo', minWidth: '80px', maxWidth: '80px', center: true},
-    { selector: (row) => row.nome, name: 'Nome', minWidth: '280px', maxWidth: '280px'},
+    { selector: (row) => row.codparc, name: 'Código', maxWidth: '100px'},
+    { selector: (row) => row.tipo, name: 'Tipo', maxWidth: '80px', center: true},
+    { selector: (row) => row.nome, name: 'Nome', maxWidth: '280px'},
   ]
 
   render = () => {
@@ -95,17 +95,12 @@ class CadastrosLocais extends React.Component {
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-          
             <div>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} onClick={this.onNovoParceiro}>&nbsp;Novo</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarParceiro(this.state?.selecteds[0]?.codparc)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoParceiro}>&nbsp;Novo</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarParceiro(this.state?.selecteds[0]?.codparc)}>&nbsp;Editar</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
             </div>
-            
-            <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1}
-              onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())}
-              onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())}
-            />
+            <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
 
           </Stack>
           
