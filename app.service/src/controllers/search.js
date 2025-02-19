@@ -56,6 +56,7 @@ export class SearchController {
 
                 where.push({
                     [Sequelize.Op.or]: [
+                        {'$codprod$': {[Sequelize.Op.like]: req.body?.search}},
                         {'$descricao$': {[Sequelize.Op.like]: `%${req.body?.search.replace(' ', "%").toUpperCase()}%`}},
                     ],
                 })

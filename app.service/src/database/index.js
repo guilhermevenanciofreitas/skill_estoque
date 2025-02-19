@@ -9,6 +9,7 @@ import { Unidade } from './models/unidade.model.js'
 import { TipoEntSai } from './models/tipoEntSai.model.js'
 import { Parceiro } from './models/parceiro.model.js'
 import { MovCab } from './models/movCab.model.js'
+import { MovItem } from './models/movItem.model.js'
 
 export class AppContext extends Sequelize {
   
@@ -17,6 +18,8 @@ export class AppContext extends Sequelize {
   Local = this.define('estoque', new Local(), { tableName: 'skill_estoq_local' })
 
   MovCab = this.define('movCab', new MovCab(), { tableName: 'skill_estoq_movcab' })
+  
+  MovItem = this.define('movItem', new MovItem(), { tableName: 'skill_estoq_movitem' })
 
   Produto = this.define('produto', new Produto(), { tableName: 'skill_estoq_produto' })
 
@@ -32,6 +35,10 @@ export class AppContext extends Sequelize {
 
 	  this.MovCab.belongsTo(this.Parceiro, {as: 'parceiro', foreignKey: 'codparc', targetKey: 'codparc'})
 	  this.MovCab.belongsTo(this.TipoEntSai, {as: 'tipoEntSai', foreignKey: 'codentsai', targetKey: 'codentsai'})
+	  this.MovCab.hasMany(this.MovItem, {as: 'items', foreignKey: 'transacao', targetKey: 'transacao'})
+
+
+	  this.MovItem.belongsTo(this.Produto, {as: 'produto', foreignKey: 'codprod', targetKey: 'codprod'})
 
 	  this.Produto.hasMany(this.Estoque, {as: 'estoque', foreignKey: 'codprod', targetKey: 'codprod'})
 

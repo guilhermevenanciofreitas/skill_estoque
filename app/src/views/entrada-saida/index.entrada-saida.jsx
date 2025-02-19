@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import PageContent from '../../components/PageContent'
 
 import { CustomBreadcrumb, CustomPagination, CustomSearch, DataTable } from '../../controls'
-import { FaEllipsisV, FaFileDownload, FaPrint, FaUpload } from 'react-icons/fa'
+import { FaEdit, FaEllipsisV, FaFileDownload, FaPlusCircle, FaPrint, FaTrash, FaUpload } from 'react-icons/fa'
 import { Service } from '../../service'
 
 import ViewEntradaSaida from './view.entrada-saida'
@@ -39,6 +39,7 @@ class EntradaSaida extends React.Component {
     this.setState({loading: true}, async () => {
       try {
         
+        this.setState({loading: true})
         const result = await new Service().Post('entrada-saida/lista', this.state.request)
         this.setState({...result.data})
         
@@ -58,8 +59,6 @@ class EntradaSaida extends React.Component {
 
     } catch (error) {
       Exception.error(error)
-    } finally {
-      this.setState({loading: false})
     }
   }
 
@@ -68,20 +67,19 @@ class EntradaSaida extends React.Component {
 
       const entSai = this.ViewEntradaSaida.current.novaEntradaSaida({tipo: 1})
       if (entSai) this.onSearch()
+
     } catch (error) {
       Exception.error(error)
-    } finally {
-      this.setState({loading: false})
     }
   }
 
   columns = [
     { selector: (row) => row.transacao, name: 'Cod. ID', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai.tipo, name: 'Tipo', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai.descricao, name: 'Descrição do tipo', minWidth: '220px', maxWidth: '220px'},
-    { selector: (row) => row.parceiro.nome, name: 'Parceiro', minWidth: '280px', maxWidth: '280px'},
-    { selector: (row) => dayjs(row.emissao).format('DD/MM/YYYY'), name: 'Emissão', minWidth: '120px', maxWidth: '120px'},
-    { selector: (row) => dayjs(row.dtmov).format('DD/MM/YYYY'), name: 'Entrada', minWidth: '120px', maxWidth: '120px'},
+    { selector: (row) => row.tipoEntSai?.tipo, name: 'Tipo', minWidth: '100px', maxWidth: '100px'},
+    { selector: (row) => row.tipoEntSai?.descricao, name: 'Descrição do tipo', minWidth: '220px', maxWidth: '220px'},
+    { selector: (row) => row.parceiro?.nome, name: 'Parceiro', minWidth: '280px', maxWidth: '280px'},
+    { selector: (row) => row.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', minWidth: '120px', maxWidth: '120px'},
+    { selector: (row) => row.dtmov ? dayjs(row.dtmov).format('DD/MM/YYYY') : '', name: 'Entrada', minWidth: '120px', maxWidth: '120px'},
     { selector: (row) => row.numdoc, name: 'Num.docto', minWidth: '120px', maxWidth: '120px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.total), name: 'Valor', minWidth: '120px', maxWidth: '120px', right: true},
     { selector: (row) => row.obs, name: 'Obs.', minWidth: '300px', maxWidth: '300px'},
@@ -97,13 +95,9 @@ class EntradaSaida extends React.Component {
         <PageContent>
           
           <Stack spacing={'6px'} direction={'row'} alignItems={'flex-start'} justifyContent={'space-between'}>
-            
             <HStack>
-
               <CustomSearch loading={this.state?.loading} fields={fields} defaultPicker={'descricao'} value={this.state?.request?.search} onChange={(search) => this.setState({request: {search}}, () => this.onSearch())} />
-      
             </HStack>
-
           </Stack>
 
           <hr></hr>
@@ -120,18 +114,12 @@ class EntradaSaida extends React.Component {
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-          
             <div>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} onClick={this.onNovaEntradaSaida}>&nbsp;Novo</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarEntradaSaida(this.state?.selecteds[0]?.transacao)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovaEntradaSaida}>&nbsp;Novo</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarEntradaSaida(this.state?.selecteds[0]?.transacao)}>&nbsp;Editar</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
             </div>
-            
-            <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1}
-              onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())}
-              onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())}
-            />
-
+            <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
           </Stack>
           
         </PageContent>

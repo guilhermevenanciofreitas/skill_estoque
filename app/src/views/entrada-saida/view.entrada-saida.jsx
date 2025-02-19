@@ -11,6 +11,7 @@ import { Search } from "../../search";
 
 import dayjs from 'dayjs'
 import { Decimal } from "../../utils/decimal";
+import { Exception } from "../../utils/exception";
 
 class ViewEntradaSaida extends React.Component {
 
@@ -32,7 +33,10 @@ class ViewEntradaSaida extends React.Component {
 
         await new Service().Post('entrada-saida/editar', {transacao}).then(async (result) => {
             this.setState({...result.data})
-            await this.onTipoOperacao(result.data.tipoEntSai.tipo)
+            if (result.data.tipoEntSai) {
+                await this.onTipoOperacao(result.data.tipoEntSai?.tipo)
+                this.setState({tipoEntSai: result.data.tipoEntSai})
+            }
         }).finally(() => Loading.Hide())
 
         return this.viewModal.current.show()
@@ -44,16 +48,16 @@ class ViewEntradaSaida extends React.Component {
 
         items.push({
             produto: this.state.produto,
-            quantidade: this.state.quantidade ?? 0,
-            precoUn: this.state.precoUn ?? 0,
+            qtde: this.state.qtde ?? 0,
+            punit: this.state.punit ?? 0,
             orig: this.state.orig,
             dest: this.state.dest
         })
 
         this.setState({
             produto: undefined,
-            quantidade: 0,
-            precoUn: 0,
+            qtde: 0,
+            punit: 0,
             orig: undefined,
             dest: undefined,
             items
@@ -62,19 +66,41 @@ class ViewEntradaSaida extends React.Component {
     }
 
     salvarEntradaSaida = async () => {
-        this.setState({submting: true}, async () => {
+        try {
 
-            const unidade = _.pick(this.state, [
+            this.setState({submting: true})
+
+            const movCab = _.pick(this.state, [
                 'transacao',
-                //'codentsai',
-                //'descricao',
+                'parceiro.codparc',
+                'tipoEntSai.codentsai',
+                'emissao',
+                'dtmov',
+                'numdoc',
+                'total',
+                'obs'
             ])
 
-            await new Service().Post('entrada-saida/salvar', unidade).then(async (result) => {
-                await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
-                this.viewModal.current?.close(result.data)
-            }).finally(() => this.setState({submting: false}));
-        })
+            const errors = []
+            
+            //if (_.isEmpty(produto.unidade)) {
+            //    errors.push('Informe a unidade!')
+            //}
+
+            if (_.size(errors)) {
+                await toaster.push(<Message showIcon type='warning'><ul>{errors.map((c) => <li>{c}</li>)}</ul></Message>, {placement: 'topEnd', duration: 5000 })
+                return
+            }
+
+            const result = await new Service().Post('entrada-saida/salvar', movCab)
+            await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
+            this.viewModal.current?.close(result.data)
+           
+        } catch (error) {
+            Exception.error(error)
+        } finally {
+            this.setState({submting: false})
+        }
     }
 
     onTipoOperacao = async (tipo) => {
@@ -147,7 +173,7 @@ class ViewEntradaSaida extends React.Component {
                             <Col md={9}>
                                 <div className='form-control'>
                                     <label className="textfield-filled">
-                                        <select value={this.state?.tipoEntSai?.codentsai} onChange={(event) => this.setState({orig: event.target.value})} >
+                                        <select value={this.state?.tipoEntSai?.codentsai} onChange={(event) => this.setState({tipoEntSai: {codentsai: event.target.value}})} >
                                             <option value="">[Selecione]</option>
                                             {_.map(this.state?.tipoOperacoes, (c) => <option value={c.codentsai}>{c.descricao}</option>)}
                                         </select>
@@ -183,7 +209,7 @@ class ViewEntradaSaida extends React.Component {
                             <Col md={4}>
                                 <div className='form-control'>
                                     <label class="textfield-filled">
-                                        <input type='text' value={this.state?.transacao} readOnly />
+                                        <input type='text' value={this.state?.numdoc} onChange={(event) => this.setState({numdoc: event.target.value})}  />
                                         <span>Nº Doc</span>
                                     </label>
                                 </div>
@@ -229,9 +255,9 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={Decimal.format(this.state?.quantidade)}
+                                                value={Decimal.format(this.state?.qtde)}
                                                 onFocus={(event) => event.target.select()}
-                                                onChange={(event) => this.setState({quantidade: Decimal.change(event.target.value)})}
+                                                onChange={(event) => this.setState({qtde: Decimal.change(event.target.value)})}
                                                 style={{textAlign: 'right'}}
                                                 />
                                                 <span>Quantidade</span>
@@ -243,9 +269,9 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={Decimal.format(this.state?.precoUn)}
+                                                value={Decimal.format(this.state?.punit)}
                                                 onFocus={(event) => event.target.select()}
-                                                onChange={(event) => this.setState({precoUn: Decimal.change(event.target.value)})}
+                                                onChange={(event) => this.setState({punit: Decimal.change(event.target.value)})}
                                                 style={{textAlign: 'right'}}
                                                 />
                                                 <span>Preço Un.</span>
@@ -257,7 +283,7 @@ class ViewEntradaSaida extends React.Component {
                                             <label className="textfield-filled">
                                                 <input
                                                 type="text"
-                                                value={Decimal.format(parseFloat(this.state?.quantidade ?? 0) * parseFloat(this.state?.precoUn ?? 0))}
+                                                value={Decimal.format(parseFloat(this.state?.qtde ?? 0) * parseFloat(this.state?.punit ?? 0))}
                                                 readOnly
                                                 style={{textAlign: 'right'}}
                                                 />
@@ -324,9 +350,9 @@ class ViewEntradaSaida extends React.Component {
                                                     <td>{item.produto?.codprod}</td>
                                                     <td>{item.produto?.descricao}</td>
                                                     <td>KG</td>
-                                                    <td>{Decimal.format(item.quantidade)}</td>
-                                                    <td>{Decimal.format(item.precoUn)}</td>
-                                                    <td>{Decimal.format(item.quantidade * item.precoUn)}</td>
+                                                    <td>{Decimal.format(item.qtde)}</td>
+                                                    <td>{Decimal.format(item.punit)}</td>
+                                                    <td>{Decimal.format(item.qtde * item.punit)}</td>
                                                     <td>{item.orig?.descricao}</td>
                                                     <td>{item.dest?.descricao}</td>
                                                 </tr>

@@ -78,10 +78,13 @@ export class EntradaSaidaController {
         await db.transaction(async (transaction) => {
             
           const movCabs = await db.MovCab.findOne({
-            attributes: ['transacao', 'inclusao', 'alteracao', 'emissao', 'dtmov', 'total', 'obs'],
+            attributes: ['transacao', 'inclusao', 'alteracao', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
             include: [
               {model: db.Parceiro, as: 'parceiro', attributes: ['codparc', 'nome']},
               {model: db.TipoEntSai, as: 'tipoEntSai', attributes: ['codentsai', 'tipo']},
+              {model: db.MovItem, as: 'items', attributes: ['id', 'qtde', 'punit'], include: [
+                {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
+              ]}
             ],
             where: [{transacao}],
             transaction
@@ -103,26 +106,36 @@ export class EntradaSaidaController {
     //await Authorization.verify(req, res).then(async () => {
       try {
 
-        const tipo = req.body.tipo
-
-        let unidade = {
-          unidade: req.body.unidade,
-          descricao: req.body.descricao,
+        let movCab = {
+          transacao: req.body.transacao,
+          codparc: req.body.parceiro?.codparc || null,
+          codentsai: req.body.tipoEntSai?.codentsai || null,
+          emissao: req.body.emissao || null,
+          dtmov: req.body.dtmov,
+          numdoc: req.body.numdoc,
+          total: req.body.total,
+          obs: req.body.obs
         }
+
+        console.log(movCab)
 
         const db = new AppContext();
 
         await db.transaction(async (transaction) => {
 
-          if (tipo == 1) {
-            unidade = await db.MovCab.create(unidade, {transaction})
+          if (_.isNil(movCab.transacao)) {
+            const lastTransacao = await db.MovCab.max('transacao', { transaction })
+            movCab.transacao = lastTransacao ? lastTransacao + 1 : 1
+            movCab.inclusao = dayjs().format('YYYY-MM-DD HH:mm')
+            movCab = await db.MovCab.create(movCab, {transaction})
           } else {
-            await db.Unidade.update(unidade, {where: [{unidade: unidade.unidade}], transaction})
+            movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
+            await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
           }
 
         })
 
-        res.status(200).json(unidade)
+        res.status(200).json(movCab)
 
       } catch (error) {
         Exception.error(res, error)
