@@ -62,10 +62,10 @@ class EntradaSaida extends React.Component {
     }
   }
 
-  onNovaEntradaSaida = () => {
+  onNovaEntradaSaida = async () => {
     try {
 
-      const entSai = this.ViewEntradaSaida.current.novaEntradaSaida({tipo: 1})
+      const entSai = await this.ViewEntradaSaida.current.novaEntradaSaida({tipo: 1})
       if (entSai) this.onSearch()
 
     } catch (error) {
