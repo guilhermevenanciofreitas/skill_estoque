@@ -74,15 +74,15 @@ class EntradaSaida extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.transacao, name: 'Cod. ID', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai?.tipo, name: 'Tipo', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai?.descricao, name: 'Descrição do tipo', minWidth: '220px', maxWidth: '220px'},
-    { selector: (row) => row.parceiro?.nome, name: 'Parceiro', minWidth: '280px', maxWidth: '280px'},
-    { selector: (row) => row.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', minWidth: '120px', maxWidth: '120px'},
-    { selector: (row) => row.dtmov ? dayjs(row.dtmov).format('DD/MM/YYYY') : '', name: 'Entrada', minWidth: '120px', maxWidth: '120px'},
-    { selector: (row) => row.numdoc, name: 'Num.docto', minWidth: '120px', maxWidth: '120px'},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.total), name: 'Valor', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => row.obs, name: 'Obs.', minWidth: '300px', maxWidth: '300px'},
+    { selector: (row) => row.transacao, name: 'Cod. ID', maxWidth: '100px'},
+    { selector: (row) => row.tipoEntSai?.tipo, name: 'Tipo', maxWidth: '100px'},
+    { selector: (row) => row.tipoEntSai?.descricao, name: 'Descrição do tipo', maxWidth: '220px'},
+    { selector: (row) => row.parceiro?.nome, name: 'Parceiro', maxWidth: '280px'},
+    { selector: (row) => row.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', maxWidth: '120px'},
+    { selector: (row) => row.dtmov ? dayjs(row.dtmov).format('DD/MM/YYYY') : '', name: 'Entrada', maxWidth: '120px'},
+    { selector: (row) => row.numdoc, name: 'Num.docto', maxWidth: '120px'},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.total), name: 'Valor', maxWidth: '120px', right: true},
+    { selector: (row) => row.obs, name: 'Obs.', maxWidth: '300px'},
   ]
 
   render = () => {

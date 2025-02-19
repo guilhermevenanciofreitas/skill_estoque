@@ -63,10 +63,10 @@ class FinanceBankAccounts extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.codprod, name: 'Código', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.descricao, name: 'Descrição', minWidth: '280px', maxWidth: '280px'},
-    { selector: (row) => row.unidade, name: 'Unid', minWidth: '80px', maxWidth: '80px'},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '100px', maxWidth: '100px', right: true},
+    { selector: (row) => row.codprod, name: 'Código', maxWidth: '100px'},
+    { selector: (row) => row.descricao, name: 'Descrição', maxWidth: '280px'},
+    { selector: (row) => row.unidade, name: 'Unid', maxWidth: '80px'},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', maxWidth: '100px', right: true},
   ]
 
   render = () => {
