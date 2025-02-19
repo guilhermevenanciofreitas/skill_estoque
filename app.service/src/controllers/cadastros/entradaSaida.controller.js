@@ -84,19 +84,26 @@ export class EntradaSaidaController {
             include: [
               {model: db.Parceiro, as: 'parceiro', attributes: ['codparc', 'nome']},
               {model: db.TipoEntSai, as: 'tipoEntSai', attributes: ['codentsai', 'tipo']},
-              {model: db.MovItem, as: 'items', attributes: ['id', 'qtde', 'punit'], include: [
-                {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
-                {model: db.Local, as: 'orig', attributes: ['codloc', 'descricao']},
-                {model: db.Local, as: 'dest', attributes: ['codloc', 'descricao']},
-              ]}
             ],
             where: [{transacao}],
             transaction
           })
 
+          const movItems = await db.MovItem.findAll({
+            attributes: ['id', 'qtde', 'punit'], include: [
+              {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
+              {model: db.Local, as: 'orig', attributes: ['codloc', 'descricao']},
+              {model: db.Local, as: 'dest', attributes: ['codloc', 'descricao']},
+            ],
+            where: [{transacao}],
+            transaction
+          })
+
+          movCabs.dataValues.items = movItems
+
           if (movCabs && movCabs.items) {
             movCabs.items.forEach((item, index) => {
-              item.dataValues.index = index + 1;  // 'index' começa em 0, então somamos 1 para começar em 1
+              item.dataValues.index = index + 1  // 'index' começa em 0, então somamos 1 para começar em 1
             });
           }
 
@@ -124,9 +131,10 @@ export class EntradaSaidaController {
           dtmov: req.body.dtmov,
           numdoc: req.body.numdoc,
           total: req.body.total,
-          obs: req.body.obs,
-          items: req.body.items
+          obs: req.body.obs
         }
+
+        const movItems = req.body.items || []
 
         const db = new AppContext();
 
@@ -135,28 +143,23 @@ export class EntradaSaidaController {
         await db.transaction(async (transaction) => {
 
           if (_.isNil(movCab.transacao)) {
-
             tipo = 'inlcuir'
-
             const lastTransacao = await db.MovCab.max('transacao', { transaction })
             movCab.transacao = lastTransacao ? lastTransacao + 1 : 1
             movCab.inclusao = dayjs().format('YYYY-MM-DD HH:mm')
             movCab = await db.MovCab.create(movCab, {transaction})
           } else {
-
             tipo = 'alterar'
-
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
           }
 
           await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
 
-          for (const item of movCab.items || []) {
+          for (const item of movItems) {
 
             const movItem = {
               transacao: movCab.transacao,
-              id: item.id,
               codprod: item.produto?.codprod || null,
               qtde: item.qtde,
               punit: item.punit,
