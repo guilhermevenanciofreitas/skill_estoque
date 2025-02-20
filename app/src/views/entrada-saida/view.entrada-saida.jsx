@@ -312,7 +312,7 @@ class ViewEntradaSaida extends React.Component {
 
                             <Col md={6}>
                                 <div className='form-control'>
-                                    <AutoComplete label='Produto' value={this.state?.produto} text={(item) => `${item.codprod} - ${item.descricao}`} onChange={(produto) => this.setState({produto})} onSearch={async (search) => await Search.produto(search)}>
+                                    <AutoComplete label='Produto' value={this.state?.produto} text={(item) => `${item.codprod} - ${item.descricao}`} onChange={(produto) => this.setState({produto, punit: produto?.custo ?? 0})} onSearch={async (search) => await Search.produto(search)}>
                                         <AutoComplete.Result>
                                             {(item) => <span>{item.codprod} - {item.descricao}</span>}
                                         </AutoComplete.Result>

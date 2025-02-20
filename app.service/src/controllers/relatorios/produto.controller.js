@@ -99,7 +99,7 @@ export class RelatorioProdutoController {
 
         const db = new AppContext()
 
-        const produtos = await db.Produto.findAll({attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'], order: ['descricao', 'asc']})
+        const produtos = await db.Produto.findAll({attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'], order: [['descricao', 'asc']]})
 
         const items = []
 
@@ -113,41 +113,27 @@ export class RelatorioProdutoController {
           items,
           totalVendas: 500,
           totalItens: 7
-        };
+        }
         
         ejs.renderFile('src\\controllers\\relatorios\\produtos.ejs', data, async (err, html) => {
+
           if (err) {
-            console.error('Erro ao gerar HTML:', err);
-          } else {
-            // Usa o Puppeteer para gerar o PDF a partir do HTML
-            try {
-              const browser = await puppeteer.launch();
-              const page = await browser.newPage();
-              
-              // Define o conteúdo da página com o HTML gerado
-              await page.setContent(html);
-              
-              // Gera o PDF e obtém o conteúdo como base64
-              const pdfBase64 = await page.pdf({
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                  top: '10mm',
-                  right: '10mm',
-                  bottom: '10mm',
-                  left: '10mm'
-                },
-                encoding: 'base64',  // Configura para retornar o PDF como base64
-              });
-              
-              res.status(200).json({pdf: Buffer.from(pdfBase64).toString('base64')})
-              
-              await browser.close();
-            } catch (err) {
-              console.error('Erro ao gerar PDF:', err);
-            }
+            console.error('Erro ao gerar HTML:', err)
+            return
           }
-        });
+          
+          const browser = await puppeteer.launch()
+          const page = await browser.newPage()
+          
+          await page.setContent(html)
+          
+          const pdfBase64 = await page.pdf({format: 'A4', printBackground: true, margin: {top: '10mm', right: '10mm', bottom: '10mm', left: '10mm'}, encoding: 'base64'})
+          
+          res.status(200).json({pdf: Buffer.from(pdfBase64).toString('base64')})
+          
+          await browser.close()
+
+        })
 
       } catch (error) {
         Exception.error(res, error)

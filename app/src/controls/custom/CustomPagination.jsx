@@ -4,7 +4,7 @@ import { Pagination } from 'rsuite'
 const ControlPagination = ({isLoading, total, limit, activePage, onChangePage, onChangeLimit}) => {
     return (
         <Pagination
-            size={'md'} prev={true} next={true}
+            size={'sm'} prev={true} next={true}
             layout={['-', 'limit', '|', 'pager']}
             first={true}
             last={true}

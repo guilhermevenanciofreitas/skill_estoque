@@ -13,7 +13,7 @@ import { BrowserRouter } from 'react-router-dom';
 import EntradaSaida from './views/entrada-saida/index.entrada-saida';
 
 //Cadastros
-import CadastroProdutos from './views/cadastros/produtos/index.produtos'
+import { CadastroProdutos } from './views/cadastros/produtos/index.produtos'
 import CadastroUnidades from './views/cadastros/unidades/index.unidades'
 import CadastroLocais from './views/cadastros/local/index.locais'
 import CadastroTipoEntSai from './views/cadastros/tipoEntSai/index.tipoEntSai'
