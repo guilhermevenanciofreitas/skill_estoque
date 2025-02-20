@@ -99,7 +99,7 @@ export class RelatorioProdutoController {
 
         const db = new AppContext()
 
-        const produtos = await db.Produto.findAll({attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'], order: ['descricao', 'asc']})
+        const produtos = await db.Produto.findAll({attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'], order: [['descricao', 'asc']]})
 
         const items = []
 
