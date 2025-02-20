@@ -15,6 +15,7 @@ import puppeteer from 'puppeteer';
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
+import { Exception } from "../../utils/exception.js"
 
 export class RelatorioProdutoController {
 
@@ -149,7 +150,7 @@ export class RelatorioProdutoController {
         });
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
