@@ -121,4 +121,26 @@ export class CadastrosUnidadeController {
     //})
   }
 
+  excluir = async (req, res) => {
+    //await Authorization.verify(req, res).then(async () => {
+      try {
+
+        const unidade = req.body
+
+        const db = new AppContext();
+
+        await db.transaction(async (transaction) => {
+          await db.Unidade.destroy({where: [{unidade: unidade}], transaction})
+        })
+
+        res.status(200).json({})
+
+      } catch (error) {
+        res.status(500).json({message: error.message})
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
 }

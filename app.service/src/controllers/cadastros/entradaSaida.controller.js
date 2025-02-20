@@ -91,7 +91,7 @@ export class EntradaSaidaController {
 
           const movItems = await db.MovItem.findAll({
             attributes: ['id', 'qtde', 'punit'], include: [
-              {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
+              {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao', 'unidade']},
               {model: db.Local, as: 'orig', attributes: ['codloc', 'descricao']},
               {model: db.Local, as: 'dest', attributes: ['codloc', 'descricao']},
             ],
@@ -100,12 +100,6 @@ export class EntradaSaidaController {
           })
 
           movCabs.dataValues.items = movItems
-
-          if (movCabs && movCabs.items) {
-            movCabs.items.forEach((item, index) => {
-              item.dataValues.index = index + 1  // 'index' começa em 0, então somamos 1 para começar em 1
-            });
-          }
 
           res.status(200).json(movCabs)
           

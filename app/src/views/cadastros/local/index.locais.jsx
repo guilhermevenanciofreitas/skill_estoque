@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Button, HStack, IconButton, List, Nav, Panel, Popover, Stack, Whisper } from 'rsuite'
+import { Badge, Button, HStack, IconButton, List, Message, Nav, Panel, Popover, Stack, toaster, Whisper } from 'rsuite'
 
 import dayjs from 'dayjs'
 
@@ -13,6 +13,9 @@ import ViewLocal from './view.local'
 
 import _ from 'lodash'
 import { times } from 'lodash'
+import { Loading } from '../../../App'
+import Swal from 'sweetalert2'
+import { Exception } from '../../../utils/exception'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -39,7 +42,7 @@ class CadastrosLocais extends React.Component {
       try {
         await new Service().Post('cadastros/local/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
       } catch (error) {
-        console.error(error.message)
+        Exception.error(error)
       }
     })
   }
@@ -54,6 +57,21 @@ class CadastrosLocais extends React.Component {
     this.ViewLocal.current.novoLocal().then((local) => {
       if (local) this.onSearch()
     })
+  }
+
+  onExcluirLocal = async () => {
+    try {
+      const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+      if (!r.isConfirmed) return
+      Loading.Show('Excluindo...')
+      await new Service().Post('cadastros/local/excluir', _.map(this.state?.selecteds, (c) => c.codloc))
+      await toaster.push(<Message showIcon type='success'>Excluido com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
+      this.onSearch()
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      Loading.Hide()
+    }
   }
 
   columns = [
@@ -71,13 +89,9 @@ class CadastrosLocais extends React.Component {
         <PageContent>
           
           <Stack spacing={'6px'} direction={'row'} alignItems={'flex-start'} justifyContent={'space-between'}>
-            
             <HStack>
-
               <CustomSearch loading={this.state?.loading} fields={fields} defaultPicker={'descricao'} value={this.state?.request?.search} onChange={(search) => this.setState({request: {search}}, () => this.onSearch())} />
-      
             </HStack>
-
           </Stack>
 
           <hr></hr>
@@ -97,7 +111,7 @@ class CadastrosLocais extends React.Component {
             <div>
               <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoLocal}>&nbsp;Novo</Button>
               <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarLocal(this.state?.selecteds[0]?.codloc)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}} onClick={this.onExcluirLocal}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
             </div>
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
           </Stack>

@@ -8,6 +8,7 @@ import { Loading } from "../../../App";
 
 import _ from "lodash";
 import { Search } from "../../../search";
+import { Exception } from "../../../utils/exception";
 
 class ViewParceiro extends React.Component {
 
@@ -52,8 +53,8 @@ class ViewParceiro extends React.Component {
                 this.viewModal.current?.close(result.data)
             })
 
-        } catch (ex) {
-
+        } catch (error) {
+            Exception.error(error)
         } finally {
             this.setState({submting: false})
         }

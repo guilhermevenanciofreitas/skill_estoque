@@ -62,7 +62,7 @@ export class SearchController {
                 })
 
                 const produtos = await db.Produto.findAll({
-                    attributes: ['codprod', 'descricao'],
+                    attributes: ['codprod', 'descricao', 'unidade'],
                     where,
                     order: [
                         ['descricao', 'asc']

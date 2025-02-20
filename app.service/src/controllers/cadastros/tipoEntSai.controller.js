@@ -12,6 +12,7 @@ import Sequelize from "sequelize"
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
+import { Exception } from "../../utils/exception.js"
 
 export class CadastrosTipoEntSaiController {
 
@@ -121,6 +122,28 @@ export class CadastrosTipoEntSaiController {
 
       } catch (error) {
         res.status(500).json({message: error.message})
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
+  excluir = async (req, res) => {
+    //await Authorization.verify(req, res).then(async () => {
+      try {
+
+        const codentsai = req.body
+
+        const db = new AppContext();
+
+        await db.transaction(async (transaction) => {
+          await db.TipoEntSai.destroy({where: [{codentsai: codentsai}], transaction})
+        })
+
+        res.status(200).json({})
+
+      } catch (error) {
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})

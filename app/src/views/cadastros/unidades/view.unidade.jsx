@@ -8,6 +8,7 @@ import { Loading } from "../../../App";
 
 import _ from "lodash";
 import { Search } from "../../../search";
+import { Exception } from "../../../utils/exception";
 
 class ViewUnidade extends React.Component {
 
@@ -26,7 +27,9 @@ class ViewUnidade extends React.Component {
     }
 
     salvarUnidade = async () => {
-        this.setState({submting: true}, async () => {
+        try {
+        
+            this.setState({submting: true})
 
             const unidade = _.pick(this.state, [
                 'tipo',
@@ -34,11 +37,27 @@ class ViewUnidade extends React.Component {
                 'descricao',
             ])
 
+            const errors = []
+            
+            if (_.isNil(unidade.unidade)) {
+                errors.push('Informe o código!')
+            }
+
+            if (_.size(errors)) {
+                await toaster.push(<Message showIcon type='warning'><ul>{errors.map((c) => <li>{c}</li>)}</ul></Message>, {placement: 'topEnd', duration: 5000 })
+                return
+            }
+
             await new Service().Post('cadastros/unidade/salvar', unidade).then(async (result) => {
                 await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
                 this.viewModal.current?.close(result.data)
-            }).finally(() => this.setState({submting: false}));
-        })
+            })
+
+        } catch (error) {
+            Exception.error(error)
+        } finally {
+            this.setState({submting: false})
+        }
     }
 
     close(role) {

@@ -37,7 +37,7 @@ export class CadastrosProdutoController {
         }
         
         const produtos = await db.Produto.findAndCountAll({
-          attributes: ['codprod', 'descricao', 'unidade', 'custo'],
+          attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'],
           limit: limit,
           offset: offset * limit,
           order: [['descricao', 'asc']],
@@ -137,6 +137,28 @@ export class CadastrosProdutoController {
         })
 
         res.status(200).json(produto)
+
+      } catch (error) {
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
+  excluir = async (req, res) => {
+    //await Authorization.verify(req, res).then(async () => {
+      try {
+
+        const codprod = req.body
+
+        const db = new AppContext();
+
+        await db.transaction(async (transaction) => {
+          await db.Produto.destroy({where: [{codprod: codprod}], transaction})
+        })
+
+        res.status(200).json({})
 
       } catch (error) {
         Exception.error(res, error)

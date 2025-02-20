@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Button, HStack, IconButton, List, Nav, Panel, Popover, Stack, Whisper } from 'rsuite'
+import { Badge, Button, HStack, IconButton, List, Message, Nav, Panel, Popover, Stack, toaster, Whisper } from 'rsuite'
 
 import dayjs from 'dayjs'
 
@@ -14,6 +14,8 @@ import ViewProduto from './view.produto'
 import _ from 'lodash'
 import { times } from 'lodash'
 import { Exception } from '../../../utils/exception'
+import Swal from 'sweetalert2'
+import { Loading } from '../../../App'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -62,11 +64,60 @@ class FinanceBankAccounts extends React.Component {
     })
   }
 
+  onExcluirProduto = async () => {
+    try {
+      const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+      if (!r.isConfirmed) return
+      Loading.Show('Excluindo...')
+      await new Service().Post('cadastros/produto/excluir', _.map(this.state?.selecteds, (c) => c.codprod))
+      await toaster.push(<Message showIcon type='success'>Excluido com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
+      this.onSearch()
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      Loading.Hide()
+    }
+  }
+
+  onImprimir = async () => {
+    try {
+
+      Loading.Show('Imprimindo...')
+
+      const r = await new Service().Post('relatorios/produto/pdf')
+
+      this.downloadBase64File(r.data.pdf, 'Relatorio.pdf', 'application/pdf');
+
+    } catch (error) {
+      Exception.error(error.message)
+    } finally {
+      Loading.Hide()
+    }
+  }
+
+  // Função para baixar o arquivo
+  downloadBase64File = (base64Data, fileName, mimeType) => {
+    // Cria um link temporário
+    const link = document.createElement('a');
+    
+    // Define o tipo MIME (por exemplo, 'application/pdf' ou 'image/png')
+    link.href = `data:${mimeType};base64,${base64Data}`;
+    
+    // Define o nome do arquivo
+    link.download = fileName;
+    
+    // Simula um clique no link para iniciar o download
+    link.click();
+  }
+
+
   columns = [
     { selector: (row) => row.codprod, name: 'Código', maxWidth: '100px'},
     { selector: (row) => row.descricao, name: 'Descrição', maxWidth: '280px'},
     { selector: (row) => row.unidade, name: 'Unid', maxWidth: '80px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', maxWidth: '100px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.customed), name: 'Custo médio', maxWidth: '100px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.ultcomp), name: 'Vlr.ult.compra', maxWidth: '110px', right: true},
   ]
 
   render = () => {
@@ -105,7 +156,8 @@ class FinanceBankAccounts extends React.Component {
             <div>
               <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoProduto}>&nbsp;Novo</Button>
               <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditaProduto(this.state?.selecteds[0]?.codprod)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}} onClick={this.onExcluirProduto}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaPrint />} onClick={this.onImprimir} style={{marginLeft: '10px'}}>&nbsp;Imprimir</Button>
             </div>
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
           </Stack>

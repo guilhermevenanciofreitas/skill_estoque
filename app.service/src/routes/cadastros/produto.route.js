@@ -15,6 +15,7 @@ export class ProdutoRoute {
         this.router.post('/carregar', async (req, res) => await this.controller.carregar(req, res))
         this.router.post('/editar', async (req, res) => await this.controller.editar(req, res))
         this.router.post('/salvar', async (req, res) => await this.controller.salvar(req, res))
+        this.router.post('/excluir', async (req, res) => await this.controller.excluir(req, res))
     }
 
 }

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    /* Reset de margens e padding */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Cabeçalho do relatório */
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 10px 20px;
+      text-align: left;
+      position: relative;
+      margin-bottom: 20px; /* Ajuste a distância do cabeçalho */
+    }
+
+    header img {
+      width: 80px;  /* Logo menor */
+      position: absolute;
+      top: 15px;
+      left: 20px;
+    }
+
+    header h1 {
+      font-size: 32px; /* Ajuste o tamanho do título */
+      margin-left: 110px; /* Espaço do logo à esquerda */
+    }
+
+    header p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    /* Estilo da tabela */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #34495e;
+      color: white;
+      font-size: 16px;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #e74c3c;
+    }
+
+    /* Estilo do resumo */
+    .summary {
+      margin-top: 20px;
+      padding: 10px;
+      border-left: 5px solid #3498db;
+    }
+
+    .summary p {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    /* Rodapé */
+    footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: #2c3e50;
+      color: white;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 12px;
+      margin-top: 30px;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .footer-content p {
+      margin: 0;
+    }
+
+    /* Paginação */
+    .page-number {
+      text-align: center;
+      font-size: 12px;
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+    }
+
+    /* Container centralizado com margens pequenas */
+    .container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 15px; /* Margens menores */
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><%= title %></h1>
+    <p>Relatório de Produtos - <%= new Date().toLocaleDateString() %></p>
+  </header>
+
+  <div class="container">
+    <h2 style="font-size: 24px; margin-top: 0;">Detalhes dos produtos</h2>
+    <table>
+      <thead>
+        <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Un.</th>
+            <th>Custo</th>
+            <th>Médio</th>
+            <th>Últ Comp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(item => { %>
+          <tr>
+            <td><%= item.codigo %></td>
+            <td><%= item.produto %></td>
+            <td><%= item.unidade %></td>
+            <td class="price">R$ <%= item.custo?.toFixed(2) %></td>
+            <td class="price">R$ <%= item.custoMedio?.toFixed(2) %></td>
+            <td class="price">R$ <%= item.ultimaCompra?.toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="summary">
+      <h3>Resumo do Relatório</h3>
+      <p><strong>Total de Vendas:</strong> R$ <%= totalVendas.toFixed(2) %></p>
+      <p><strong>Total de Itens Vendidos:</strong> <%= totalItens %> produtos</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <p></p>
+      <p>Data de Impressão: <%= new Date().toLocaleDateString() %></p>
+    </div>
+  </footer>
+
+  <!-- Paginação (Somente no PDF gerado com Puppeteer) -->
+  <div class="page-number">
+    Página <span class="pageNumber"></span>
+  </div>
+
+</body>
+</html>

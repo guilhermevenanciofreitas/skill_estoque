@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Button, HStack, IconButton, List, Nav, Panel, Popover, Stack, Whisper } from 'rsuite'
+import { Badge, Button, HStack, IconButton, List, Message, Nav, Panel, Popover, Stack, toaster, Whisper } from 'rsuite'
 
 import dayjs from 'dayjs'
 
@@ -13,6 +13,9 @@ import ViewParceiro from './view.parceiro'
 
 import _ from 'lodash'
 import { times } from 'lodash'
+import { Exception } from '../../../utils/exception'
+import { Loading } from '../../../App'
+import Swal from 'sweetalert2'
 
 const fields = [
   { label: 'Nome', value: 'nome' },
@@ -54,6 +57,21 @@ class CadastrosLocais extends React.Component {
     this.ViewParceiro.current.novoParceiro().then((parceiro) => {
       if (parceiro) this.onSearch()
     })
+  }
+
+  onExcluirParceiro = async () => {
+    try {
+      const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+      if (!r.isConfirmed) return
+      Loading.Show('Excluindo...')
+      await new Service().Post('cadastros/parceiro/excluir', _.map(this.state?.selecteds, (c) => c.codparc))
+      await toaster.push(<Message showIcon type='success'>Excluido com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
+      this.onSearch()
+    } catch (error) {
+      Exception.error(error)
+    } finally {
+      Loading.Hide()
+    }
   }
 
   columns = [
@@ -98,7 +116,7 @@ class CadastrosLocais extends React.Component {
             <div>
               <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoParceiro}>&nbsp;Novo</Button>
               <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarParceiro(this.state?.selecteds[0]?.codparc)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}} onClick={this.onExcluirParceiro}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
             </div>
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
 

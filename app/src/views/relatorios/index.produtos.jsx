@@ -12,6 +12,7 @@ import { Service } from '../../service'
 import _ from 'lodash'
 import { times } from 'lodash'
 import DataTable from 'react-data-table-component'
+import { Exception } from '../../utils/exception'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -28,9 +29,19 @@ class RelatorioProduto extends React.Component {
       try {
         await new Service().Post('relatorios/produto/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
       } catch (error) {
-        console.error(error.message)
+        Exception.error(error.message)
       }
     })
+  }
+
+  onImprimir = async () => {
+    try {
+
+      await new Service().Post('relatorios/produto/pdf')
+
+    } catch (error) {
+      Exception.error(error.message)
+    }
   }
 
   ExpandedComponent = (row2) => {
@@ -90,21 +101,15 @@ class RelatorioProduto extends React.Component {
               data={this.state?.response?.rows || []}
               expandableRows={true}
               expandableRowsComponent={this.ExpandedComponent}
-              //expandOnRowClicked={expandOnRowClicked}
-              //expandOnRowDoubleClicked={expandOnRowDoubleClicked}
-              //expandableRowsHideExpander={expandableRowsHideExpander}
-              //pagination
             />
           </div>
 
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-          
             <div>
-              <Button appearance='primary' color='blue' startIcon={<FaUpload />}>&nbsp;Imprimir</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaPrint />} onClick={this.onImprimir}>&nbsp;Imprimir</Button>
             </div>
-            
           </Stack>
           
         </PageContent>

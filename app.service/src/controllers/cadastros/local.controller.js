@@ -12,6 +12,7 @@ import Sequelize from "sequelize"
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
+import { Exception } from "../../utils/exception.js"
 
 export class CadastrosLocalController {
 
@@ -121,5 +122,26 @@ export class CadastrosLocalController {
     }
   }
   
+  excluir = async (req, res) => {
+    //await Authorization.verify(req, res).then(async () => {
+      try {
 
+        const codloc = req.body
+
+        const db = new AppContext();
+
+        await db.transaction(async (transaction) => {
+          await db.Local.destroy({where: [{codloc: codloc}], transaction})
+        })
+
+        res.status(200).json({})
+
+      } catch (error) {
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+  
 }

@@ -61,16 +61,14 @@ export class Service {
             }
 
             //Erro desconhecido
-            if (error?.response?.status == 500) {
-                const message = '[500] - Ocorreu um erro inesperado!'
-                Swal.fire({showCloseButton: true, title: 'Ops...', icon: 'error', text: message, confirmButtonColor: "#FFF", confirmButtonText: '<span style="color: rgba(88, 86, 214)">Quero abrir um chamado!</span>',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire('', 'Chamado <b>#49812</b> aberto com sucesso!', 'success')
-                    }
-                })
-                throw new Error(JSON.stringify(error?.response?.data))
-            }
+            const message = '[500] - Ocorreu um erro inesperado!'
+            Swal.fire({showCloseButton: true, title: 'Ops...', icon: 'error', text: message, confirmButtonColor: "#FFF", confirmButtonText: '<span style="color: rgba(88, 86, 214)">Quero abrir um chamado!</span>',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('', 'Chamado <b>#49812</b> aberto com sucesso!', 'success')
+                }
+            })
+            throw new Error(JSON.stringify(error?.response?.data))
 
         }
     }

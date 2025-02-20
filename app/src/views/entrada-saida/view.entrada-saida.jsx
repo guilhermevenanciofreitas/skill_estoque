@@ -12,7 +12,8 @@ import { Search } from "../../search";
 import dayjs from 'dayjs'
 import { Decimal } from "../../utils/decimal";
 import { Exception } from "../../utils/exception";
-import { FaEdit, FaPlusCircle, FaSave, FaTrash } from "react-icons/fa";
+import { FaApper, FaClone, FaEdit, FaNewspaper, FaPager, FaPlusCircle, FaSave, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 class ViewEntradaSaida extends React.Component {
 
@@ -33,7 +34,11 @@ class ViewEntradaSaida extends React.Component {
         await new Service().Post('entrada-saida/locais').then((result) => this.setState({locais: result.data}))
 
         await new Service().Post('entrada-saida/editar', {transacao}).then(async (result) => {
+
+            result.data.items?.forEach((item, index) => item.index = index + 1)
+
             this.setState({...result.data})
+
             if (result.data.tipoEntSai) {
                 await this.onTipoOperacao(result.data.tipoEntSai?.tipo)
                 this.setState({tipoEntSai: result.data.tipoEntSai})
@@ -156,17 +161,16 @@ class ViewEntradaSaida extends React.Component {
 
     }
 
-    onDeleteItem = (index) => {
+    onDeleteItem = async (index) => {
 
-        const resultado = confirm("Tem certeza de que deseja excluir este item?");
-        
-        if (!resultado) {
-            return
-        }
+        const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+        if (!r.isConfirmed) return
 
         const items = this.state?.items.filter(item => item.index !== index)
 
         this.setState({items})
+
+        await toaster.push(<Message showIcon type='success'>Excluido com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
 
     }
 
@@ -363,39 +367,42 @@ class ViewEntradaSaida extends React.Component {
                             
                             <Col md={12}>
                                 <Row gutterWidth={0}>
-                                    <Col md={5}>
-                                        <div className='form-control'>
-                                            <label className="textfield-filled">
-                                                <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
-                                                    <option value="">[Selecione]</option>
-                                                    {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
-                                                </select>
-                                                <span>Origem</span>
-                                            </label>
-                                        </div>
-                                    </Col>
-                                    <Col md={5}>
-                                        <div className='form-control'>
-                                            <label className="textfield-filled">
-                                                <select value={this.state?.dest?.codloc} onChange={(event) => this.setState({dest: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
-                                                    <option value="">[Selecione]</option>
-                                                    {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
-                                                </select>
-                                                <span>Destino</span>
-                                            </label>
-                                        </div>
-                                    </Col>
-                                            
-                                    <Col md={2}>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onLimparItem}><FaPlusCircle /> &nbsp;<font size='2'>Inlcuir</font></Button>
-                                        <Button style={{marginTop: '10px'}} appearance="primary" color='blue' onClick={this.onSalvarItem}><FaSave /> &nbsp;<font size='2'>Salvar</font></Button>
+                                    <Col md={9}>
+                                        <Row gutterWidth={0}>
+                                            <Col>
+                                                <div className='form-control'>
+                                                    <label className="textfield-filled">
+                                                        <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
+                                                            <option value="">[Selecione]</option>
+                                                            {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
+                                                        </select>
+                                                        <span>Origem</span>
+                                                    </label>
+                                                </div>
+                                            </Col>
+                                            <Col>
+                                                <div className='form-control'>
+                                                    <label className="textfield-filled">
+                                                        <select value={this.state?.dest?.codloc} onChange={(event) => this.setState({dest: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
+                                                            <option value="">[Selecione]</option>
+                                                            {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
+                                                        </select>
+                                                        <span>Destino</span>
+                                                    </label>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </Col> 
+                                    <Col md={3} style={{textAlign: 'right'}}>
+                                        <Button style={{margin: '4px'}} appearance="primary" color='blue' onClick={this.onLimparItem}><FaClone /> &nbsp;<font size='2'>Limpar</font></Button>
+                                        <Button style={{margin: '4px'}} appearance="primary" color='blue' onClick={this.onSalvarItem}><FaSave /> &nbsp;<font size='2'>Salvar</font></Button>
                                     </Col>
 
                                 </Row>
                             </Col>
 
                             <Col md={12}>
-                                <div style={{height: '250px'}}>
+                                <div style={{maxHeight: '250px', overflow: 'auto'}}>
                                     <table>
                                         <thead>
                                         <tr>
@@ -407,21 +414,24 @@ class ViewEntradaSaida extends React.Component {
                                             <th>Total</th>
                                             <th>Origem</th>
                                             <th>Destino</th>
-                                            <th>Excluir</th>
+                                            <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                            {_.map(this.state?.items, (item) =>
+                                            {_.map(_.sortBy(this.state?.items, ['produto.descricao']), (item) =>
                                                 <tr className="rdt_TableRow">
-                                                    <td>{item.produto?.codprod}</td>
+                                                    <td style={{textAlign: 'center'}}>{item.produto?.codprod}</td>
                                                     <td>{item.produto?.descricao}</td>
-                                                    <td>KG</td>
-                                                    <td>{Decimal.format(item.qtde)}</td>
-                                                    <td>{Decimal.format(item.punit)}</td>
-                                                    <td>{Decimal.format(item.qtde * item.punit)}</td>
+                                                    <td style={{textAlign: 'center'}}>{item.produto?.unidade}</td>
+                                                    <td style={{textAlign: 'right'}}>{Decimal.format(item.qtde)}</td>
+                                                    <td style={{textAlign: 'right'}}>{Decimal.format(item.punit)}</td>
+                                                    <td style={{textAlign: 'right'}}>{Decimal.format(item.qtde * item.punit)}</td>
                                                     <td>{item.orig?.descricao}</td>
                                                     <td>{item.dest?.descricao}</td>
-                                                    <td><div><FaTrash size='18px' color='tomato' style={{cursor: 'pointer'}} onClick={() => this.onDeleteItem(item.index)} /><FaEdit size='18px' color='orange' style={{cursor: 'pointer'}} onClick={() => this.onEditarItem(item.index)} /></div></td>
+                                                    <td style={{textAlign: 'center'}}>
+                                                        <FaEdit size='18px' color='orange' style={{cursor: 'pointer'}} onClick={() => this.onEditarItem(item.index)} />
+                                                        <FaTrash size='18px' color='tomato' style={{cursor: 'pointer'}} onClick={() => this.onDeleteItem(item.index)} />
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>
