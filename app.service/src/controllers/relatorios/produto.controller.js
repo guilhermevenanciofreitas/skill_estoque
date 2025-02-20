@@ -12,6 +12,7 @@ import Sequelize from "sequelize"
 
 import ejs from 'ejs'
 import puppeteer from 'puppeteer';
+import pdf from 'html-pdf'
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
@@ -122,17 +123,10 @@ export class RelatorioProdutoController {
             return
           }
           
-          const browser = await puppeteer.launch()
-          const page = await browser.newPage()
+          const pdf = await this.gerarPDF(html)
           
-          await page.setContent(html)
+          res.status(200).json({pdf: Buffer.from(pdf).toString('base64')})
           
-          const pdfBase64 = await page.pdf({format: 'A4', printBackground: true, margin: {top: '10mm', right: '10mm', bottom: '10mm', left: '10mm'}, encoding: 'base64'})
-          
-          res.status(200).json({pdf: Buffer.from(pdfBase64).toString('base64')})
-          
-          await browser.close()
-
         })
 
       } catch (error) {
@@ -141,6 +135,22 @@ export class RelatorioProdutoController {
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
     //})
+  }
+
+  gerarPDF = async (html) => {
+
+    const options = { format: 'A4' }
+  
+    return new Promise((resolve, reject) => {
+      pdf.create(html, options).toBuffer((err, res) => {
+        if (err) {
+          reject('Erro ao gerar PDF: ' + err)
+        } else {
+          resolve(res)
+        }
+      })
+    })
+
   }
 
 }
