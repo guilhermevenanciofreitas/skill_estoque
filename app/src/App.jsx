@@ -14,10 +14,10 @@ import EntradaSaida from './views/entrada-saida/index.entrada-saida';
 
 //Cadastros
 import { CadastroProdutos } from './views/cadastros/produtos/index.produtos'
-import CadastroUnidades from './views/cadastros/unidades/index.unidades'
-import CadastroLocais from './views/cadastros/local/index.locais'
+import { CadastroUnidades } from './views/cadastros/unidades/index.unidades'
+import { CadastroLocais } from './views/cadastros/local/index.locais'
 import CadastroTipoEntSai from './views/cadastros/tipoEntSai/index.tipoEntSai'
-import CadastroParceiro from './views/cadastros/parceiros/index.parceiros'
+import { CadastroParceiros } from './views/cadastros/parceiros/index.parceiros'
 
 //Relatorios
 import RelatorioProduto from './views/relatorios/index.produtos'
@@ -77,7 +77,7 @@ const App = () => {
               <Route path='cadastros/unidades' element={<CadastroUnidades />} />
               <Route path='cadastros/locais' element={<CadastroLocais />} />
               <Route path='cadastros/tipos-entrada-saida' element={<CadastroTipoEntSai />} />
-              <Route path='cadastros/parceiros' element={<CadastroParceiro />} />
+              <Route path='cadastros/parceiros' element={<CadastroParceiros />} />
 
               
               {/*Relatorios*/}

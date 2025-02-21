@@ -18,6 +18,8 @@ import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 import { Exception } from "../../utils/exception.js"
 
+import axios from 'axios'
+
 export class RelatorioProdutoController {
 
   lista = async (req, res) => {
@@ -52,12 +54,14 @@ export class RelatorioProdutoController {
             'descricao', 
             'unidade',
             'custo',
+            'customed',
+            'ultcomp',
             [Sequelize.fn('SUM', Sequelize.col('estoque.saldo')), 'saldo']
           ],
           include: [
             {model: db.Estoque, as: 'estoque', attributes: []}
           ],
-          group: ['produto.codprod', 'produto.id', 'produto.descricao', 'produto.unidade', 'produto.custo'],
+          group: ['produto.codprod', 'produto.id', 'produto.descricao', 'produto.unidade', 'produto.custo', 'produto.customed', 'produto.ultcomp'],
           order: [['descricao', 'asc']],
           where,
         })
@@ -87,7 +91,7 @@ export class RelatorioProdutoController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -123,9 +127,15 @@ export class RelatorioProdutoController {
             return
           }
           
-          const pdf = await this.gerarPDF(html)
+          axios.post('http://191.252.205.101/services/report/pdf', {html})
+          .then((response) => {
+            res.status(200).json({pdf: Buffer.from(response.data.pdf).toString('base64')})
+          })
+          .catch((error) => {
+            console.log(error)
+            Exception.error(res, error)
+          })
           
-          res.status(200).json({pdf: Buffer.from(pdf).toString('base64')})
           
         })
 

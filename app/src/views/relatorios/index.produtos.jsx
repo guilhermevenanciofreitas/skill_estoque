@@ -65,7 +65,8 @@ class RelatorioProduto extends React.Component {
     { selector: (row) => row.unidade, name: 'Unidade', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo * row.saldo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.customed), name: 'Custo Médio', minWidth: '120px', maxWidth: '120px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.ultcomp), name: 'Vlr.Ult.Comp', minWidth: '120px', maxWidth: '120px', right: true},
   ]
 
   render = () => {
@@ -94,8 +95,10 @@ class RelatorioProduto extends React.Component {
           <DataTable columns={this.columns} rows={this.state?.response?.rows} loading={this.state?.loading} onItem={(row) => this.onEditarEntradaSaida(row.transacao)} selectedRows={true} onSelected={(selecteds) => this.setState({selecteds})} />
    */}
 
-          <div style={{cursor: 'pointer', width: '100%', marginTop: '15px', maxHeight: '100%', height: 'calc(100vh - 370px)'}}>
+          <div style={{cursor: 'pointer', width: '100%', marginTop: '15px', maxHeight: '100%', height: 'calc(100vh - 360px)', overflow: 'auto'}}>
             <DataTable
+              fixedHeader
+              fixedHeaderScrollHeight='100%'
               dense
               columns={this.columns}
               data={this.state?.response?.rows || []}

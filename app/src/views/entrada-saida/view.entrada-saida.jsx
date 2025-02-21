@@ -60,9 +60,10 @@ class ViewEntradaSaida extends React.Component {
                 'emissao',
                 'dtmov',
                 'numdoc',
-                'total',
                 'obs'
             ])
+
+            movCab.total = _.sumBy(this.state?.items, (item) => item.qtde * item.punit)
 
             let movItems = []
 
@@ -290,9 +291,10 @@ class ViewEntradaSaida extends React.Component {
                                     <label className="textfield-filled">
                                         <input
                                         type="text"
-                                        value={Decimal.format(this.state?.total)}
-                                        onFocus={(event) => event.target.select()}
-                                        onChange={(event) => this.setState({total: Decimal.change(event.target.value)})}
+                                        value={Decimal.format(_.sumBy(this.state?.items, (item) => item.qtde * item.punit))}
+                                        //onFocus={(event) => event.target.select()}
+                                        //onChange={(event) => this.setState({total: Decimal.change(event.target.value)})}
+                                        readOnly
                                         style={{textAlign: 'right'}}
                                         />
                                         <span>Valor total</span>

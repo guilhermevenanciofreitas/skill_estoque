@@ -29,14 +29,6 @@ export class CadastroProdutos extends React.Component {
     this.onSearch()
   }
 
-  onApplyDate = (date) => {
-    //this.setState({request: {date}})
-  }
-
-  onApplyFilter = (filter) => {
-    this.setState({request: {filter}}, () => this.onSearch())
-  }
-
   onSearch = () => {
     this.setState({loading: true}, async () => {
       try {
