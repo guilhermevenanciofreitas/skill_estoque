@@ -18,8 +18,6 @@ import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 import { Exception } from "../../utils/exception.js"
 
-import axios from 'axios'
-
 export class RelatorioProdutoController {
 
   lista = async (req, res) => {
@@ -127,14 +125,26 @@ export class RelatorioProdutoController {
             return
           }
           
-          axios.post('http://191.252.205.101/services/report/pdf', {html})
-          .then((response) => {
-            res.status(200).json({pdf: Buffer.from(response.data.pdf).toString('base64')})
+          const url = 'http://191.252.205.101/services/report/pdf';
+          const data = { html }; // Supondo que 'html' já esteja definido em algum lugar
+
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
           })
-          .catch((error) => {
-            console.log(error)
-            Exception.error(res, error)
-          })
+            .then((response) => response.json())
+            .then((responseData) => {
+              const pdfBuffer = Buffer.from(responseData.pdf, 'base64');
+              res.status(200).json({ pdf: pdfBuffer.toString('base64') });
+            })
+            .catch((error) => {
+              console.log(error);
+              Exception.error(res, error);
+            });
+
           
           
         })
