@@ -1,23 +1,25 @@
 import express, { Router } from 'express'
 import cors from 'cors'
-import serverless from 'serverless-http'
+import path from 'path'
+import { fileURLToPath } from "url"
 
-import { ProdutoRoute } from './routes/cadastros/produto.route.js'
-import { UnidadeRoute } from './routes/cadastros/unidade.route.js'
-import { LocalRoute } from './routes/cadastros/local.route.js'
-import { TipoEntSaiRoute } from './routes/cadastros/tipoEntSai.route.js'
-import { ParceiroRoute } from './routes/cadastros/parceiro.route.js'
-import { EntradaSaidaRoute } from './routes/cadastros/entradaSaida.route.js'
-import { SearchRoute } from './routes/search.js'
-import { RelatorioProdutoRoute } from './routes/relatorios/produto.route.js'
+import { ProdutoRoute } from './src/routes/cadastros/produto.route.js'
+import { UnidadeRoute } from './src/routes/cadastros/unidade.route.js'
+import { LocalRoute } from './src/routes/cadastros/local.route.js'
+import { TipoEntSaiRoute } from './src/routes/cadastros/tipoEntSai.route.js'
+import { ParceiroRoute } from './src/routes/cadastros/parceiro.route.js'
+import { EntradaSaidaRoute } from './src/routes/cadastros/entradaSaida.route.js'
+import { SearchRoute } from './src/routes/search.js'
+import { RelatorioProdutoRoute } from './src/routes/relatorios/produto.route.js'
 
-class App {
+export class App {
 
   express = express()
 
   constructor() {
     this.initializeMiddlewares()
     this.initializeRoutes()
+    this.initializePublic()
   }
 
   initializeMiddlewares = () => {
@@ -52,6 +54,16 @@ class App {
 
   }
 
+  initializePublic = () => {
+
+    this.express.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "public")))
+
+    this.express.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "public", "index.html"))
+    })
+
+  }
+
   listen = (port) => {
     this.express.listen(port, () => {
       console.log(`Server running on port ${port}`)
@@ -59,7 +71,3 @@ class App {
   }
 
 }
-
-export const app = new App()
-
-export const handler = serverless(app.express)

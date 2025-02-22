@@ -145,8 +145,6 @@ export class RelatorioProdutoController {
               Exception.error(res, error);
             });
 
-          
-          
         })
 
       } catch (error) {
