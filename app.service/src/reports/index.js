@@ -36,19 +36,32 @@ export class Report {
           const page = await browser.newPage()
           await page.setContent(html)
 
-          const pdfBase64 = await page.pdf({
+        const headerTemplate = `
+            <div style="width: 100%; font-size: 12px; font-family: Arial, sans-serif; border-bottom: 1px solid #ccc; margin: 20px;">
+                <div style="display: flex; justify-content: space-between; padding: 5px;">
+                    <span style="font-size: 18px; font-weight: bold;">GASTROBAR</span>
+                    <span style="font-size: 10px;">Página <span class="pageNumber"></span> de <span class="totalPages"></span></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 5px;">
+                    <span style="font-size: 20px;">${title}</span>
+                    <span style="font-size: 10px;">${new Date().toLocaleString()}</span>
+                </div>
+                <div style="width: 100%; height: 1px; background-color: #ccc; padding: 5px"></div>
+            </div>
+        `;
+
+        const pdfBase64 = await page.pdf({
             format: "A4",
             displayHeaderFooter: true,
-            headerTemplate: `
-              <div style="font-size: 12px; text-align: center; width: 100%;">
-                Relatório de Produtos - <span class="date"></span>
-              </div>`,
-            footerTemplate: `
+            headerTemplate: headerTemplate,
+            /*footerTemplate: `
               <div style="font-size: 12px; text-align: center; width: 100%;">
                 Página <span class="pageNumber"></span> de <span class="totalPages"></span>
-              </div>`,
+              </div>
+            `,*/
+            footerTemplate: `<div></div>`,
             margin: {
-              top: "60px",
+              top: "140px",
               bottom: "40px",
             },
             encoding: 'base64'

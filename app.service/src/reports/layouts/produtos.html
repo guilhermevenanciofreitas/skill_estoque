@@ -5,25 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório</title>
     <style>
+
       body {
         font-family: Arial, sans-serif;
-        margin: 20px;
-        text-align: center;
+        margin-left: 20px;
+        margin-right: 20px;
       }
+
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
       }
       th, td {
+        border: 0.4px solid black;
         padding: 2px;
         text-align: left;
-        font-size: x-small;
+        font-size: 12px;
       }
       th {
         padding: 2px;
         text-align: left;
-        font-size: x-small;
+        font-size: 12px;
       }
       .summary {
         margin-top: 40px;
@@ -50,19 +52,13 @@
             <td><%= item.codprod %></td>
             <td><%= item.descricao %></td>
             <td><%= item.unidade %></td>
-            <td style="text-align: right;"><%= item.custo?.toFixed(2) %></td>
-            <td style="text-align: right;"><%= item.customed?.toFixed(2) %></td>
-            <td style="text-align: right;"><%= item.ultcomp?.toFixed(2) %></td>
+            <td style="text-align: right;"><%= item.custo?.toFixed(2) || '0.00' %></td>
+            <td style="text-align: right;"><%= item.customed?.toFixed(2) || '0.00' %></td>
+            <td style="text-align: right;"><%= item.ultcomp?.toFixed(2) || '0.00' %></td>
           </tr>
         <% }); %>
       </tbody>
     </table>
-
-    <div class="summary">
-      <h2>Sumário</h2>
-      <p>Total de produtos: <%= data.items.length %></p>
-      <p>Valor médio: R$ <%= (data.items.reduce((acc, cur) => acc + parseFloat(cur.preco), 0) / data.items.length).toFixed(2) %></p>
-    </div>
 
   </body>
 </html>
