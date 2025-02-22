@@ -16,6 +16,7 @@ import { times } from 'lodash'
 import { Exception } from '../../../utils/exception'
 import Swal from 'sweetalert2'
 import { Loading } from '../../../App'
+import { ReportViewer } from '../../../controls/components/ReportViewer'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
@@ -24,6 +25,7 @@ const fields = [
 export class CadastroProdutos extends React.Component {
 
   ViewProduto = React.createRef()
+  ReportViewer = React.createRef()
 
   componentDidMount = () => {
     this.onSearch()
@@ -78,10 +80,11 @@ export class CadastroProdutos extends React.Component {
 
       const r = await new Service().Post('relatorios/produto/pdf')
 
-      this.downloadBase64File(r.data.pdf, 'Relatorio.pdf', 'application/pdf');
+      this.ReportViewer.current?.visualize(r.data.pdf)
+      //this.downloadBase64File(r.data.pdf, 'Relatorio.pdf', 'application/pdf');
 
     } catch (error) {
-      Exception.error(error.message)
+      Exception.error(error)
     } finally {
       Loading.Hide()
     }
@@ -118,6 +121,7 @@ export class CadastroProdutos extends React.Component {
       <Panel header={<CustomBreadcrumb menu={'Cadastros'} title={'Produtos'} />}>
 
         <ViewProduto ref={this.ViewProduto} />
+        <ReportViewer ref={this.ReportViewer} />
 
         <PageContent>
           

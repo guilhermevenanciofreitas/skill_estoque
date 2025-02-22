@@ -11,7 +11,6 @@ import Sequelize from "sequelize"
 //import axios from 'axios'
 
 import ejs from 'ejs'
-import puppeteer from 'puppeteer';
 import pdf from 'html-pdf'
 
 import fetch from 'node-fetch';
@@ -117,33 +116,27 @@ export class RelatorioProdutoController {
           totalVendas: 500,
           totalItens: 7
         }
+
+        const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+        console.log(__dirname)
         
-        ejs.renderFile('src\\controllers\\relatorios\\produtos.ejs', data, async (err, html) => {
+        ejs.renderFile(`${__dirname}/produtos.ejs`, data, async (err, html) => {
 
           if (err) {
             console.error('Erro ao gerar HTML:', err)
             return
           }
           
-          const url = 'http://191.252.205.101/services/report/pdf';
-          const data = { html }; // Supondo que 'html' já esteja definido em algum lugar
+          const options = { format: 'A4' }
 
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+          pdf.create(html, options).toBuffer((error, pdf) => {
+            if (error) {
+              res.json({error});
+            } else {
+              res.status(200).json({pdf: Buffer.from(pdf).toString('base64')})
+            }
           })
-            .then((response) => response.json())
-            .then((responseData) => {
-              const pdfBuffer = Buffer.from(responseData.pdf, 'base64');
-              res.status(200).json({ pdf: pdfBuffer.toString('base64') });
-            })
-            .catch((error) => {
-              console.log(error);
-              Exception.error(res, error);
-            });
 
         })
 

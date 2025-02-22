@@ -55,8 +55,10 @@ export class App {
   }
 
   initializePublic = () => {
+        
+    const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-    this.express.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "public")))
+    this.express.use(express.static(path.join(__dirname, "public")))
 
     this.express.get("*", (req, res) => {
       res.sendFile(path.join(__dirname, "public", "index.html"))
