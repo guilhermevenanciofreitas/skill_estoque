@@ -78,10 +78,9 @@ export class CadastroProdutos extends React.Component {
 
       Loading.Show('Imprimindo...')
 
-      const r = await new Service().Post('relatorios/produto/pdf')
+      const report = await new Service().Post('cadastros/produto/imprimir')
 
-      this.ReportViewer.current?.visualize(r.data.pdf)
-      //this.downloadBase64File(r.data.pdf, 'Relatorio.pdf', 'application/pdf');
+      this.ReportViewer.current?.visualize(report.data.pdf)
 
     } catch (error) {
       Exception.error(error)
@@ -89,22 +88,6 @@ export class CadastroProdutos extends React.Component {
       Loading.Hide()
     }
   }
-
-  // Função para baixar o arquivo
-  downloadBase64File = (base64Data, fileName, mimeType) => {
-    // Cria um link temporário
-    const link = document.createElement('a');
-    
-    // Define o tipo MIME (por exemplo, 'application/pdf' ou 'image/png')
-    link.href = `data:${mimeType};base64,${base64Data}`;
-    
-    // Define o nome do arquivo
-    link.download = fileName;
-    
-    // Simula um clique no link para iniciar o download
-    link.click();
-  }
-
 
   columns = [
     { selector: (row) => row.codprod, name: 'Código', maxWidth: '100px'},

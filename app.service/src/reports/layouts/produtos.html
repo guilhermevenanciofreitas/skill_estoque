@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        padding: 2px;
+        text-align: left;
+        font-size: x-small;
+      }
+      th {
+        padding: 2px;
+        text-align: left;
+        font-size: x-small;
+      }
+      .summary {
+        margin-top: 40px;
+        page-break-before: always;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Unid</th>
+          <th style="text-align: right;">Custo</th>
+          <th style="text-align: right;">Custo Médio</th>
+          <th style="text-align: right;">Ult. Compra</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% data.items.forEach(item => { %>
+          <tr>
+            <td><%= item.codprod %></td>
+            <td><%= item.descricao %></td>
+            <td><%= item.unidade %></td>
+            <td style="text-align: right;"><%= item.custo?.toFixed(2) %></td>
+            <td style="text-align: right;"><%= item.customed?.toFixed(2) %></td>
+            <td style="text-align: right;"><%= item.ultcomp?.toFixed(2) %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <div class="summary">
+      <h2>Sumário</h2>
+      <p>Total de produtos: <%= data.items.length %></p>
+      <p>Valor médio: R$ <%= (data.items.reduce((acc, cur) => acc + parseFloat(cur.preco), 0) / data.items.length).toFixed(2) %></p>
+    </div>
+
+  </body>
+</html>
