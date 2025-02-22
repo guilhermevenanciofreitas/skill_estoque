@@ -132,20 +132,17 @@ export class EntradaSaidaController {
 
         const db = new AppContext();
 
-        let tipo;
-
         await db.transaction(async (transaction) => {
 
           if (_.isNil(movCab.transacao)) {
-            tipo = 'inlcuir'
             const lastTransacao = await db.MovCab.max('transacao', { transaction })
             movCab.transacao = lastTransacao ? lastTransacao + 1 : 1
             movCab.inclusao = dayjs().format('YYYY-MM-DD HH:mm')
             movCab = await db.MovCab.create(movCab, {transaction})
           } else {
-            tipo = 'alterar'
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
+            await this.processMovimentos(2, movCab.transacao)
           }
 
           await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
@@ -167,16 +164,8 @@ export class EntradaSaidaController {
 
         })
 
-        /*
-        if (tipo == 'incluir') {
-          await this.processMovimentos(1, movCab.transacao)
-        }
-        if (tipo == 'alterar') {
-          await this.processMovimentos(2, movCab.transacao)
-          await this.processMovimentos(1, movCab.transacao)
-        }
-        */
-
+        await this.processMovimentos(1, movCab.transacao)
+       
         res.status(200).json(movCab)
 
       } catch (error) {
@@ -270,150 +259,68 @@ export class EntradaSaidaController {
           if (param && param.name && param.type) {
             request.input(param.name, param.type, param.value);
           } else {
-            console.error("Parâmetro inválido: ", param);
+            throw new Error("Parâmetro inválido: ");
           }
         });
       }
 
       // Executando a consulta
       const result = await request.query(query);
+
+      console.log(query)
     
       // Fechando a conexão
       await pool.close();
       return result.recordset; // Retorna os dados do recordset
-    } catch (err) {
-      console.error('Erro ao executar consulta:', err);
-      throw err;
+    } catch (error) {
+      throw error
     }
   }
 
-  // Função principal que processa a lógica
   processMovimentos = async (ws, transacao) => {
-    
-    if (ws === 1) {
-      // Consultar wmov
-      let wmovResults = await this.executeQuery('SELECT * FROM skill_estoq_movitem WHERE transacao = ' + transacao + ''); // Ajuste a consulta conforme necessário
 
-      for (let wmov of wmovResults) {
-        const wcodprod = wmov.codprod?.toString().trim();
-        const wqtde = wmov.qtde.toFixed(3);
-        const wcodloc1 = wmov.codloc1?.toString().trim();
-        const wcodloc2 = wmov.codloc2?.toString().trim();
+    const wmovResults = await this.executeQuery(`SELECT * FROM skill_estoq_movitem WHERE transacao = ${transacao}`);
   
-        if (wmov.codloc1 > 0) {
-          let wsele = 'SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc';
-          let estoqueResults = await this.executeQuery(wsele, [
-            { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-            { name: 'codloc', type: sql.Int, value: wcodloc1 }
-          ]);
-  
-          if (estoqueResults.length === 0) {
-            let zqtde = parseFloat(-wqtde);
-            let wins = 'INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)';
-            await this.executeQuery(wins, [
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc1 },
-              { name: 'saldo', type: sql.Decimal, value: zqtde }
-            ]);
-          } else {
-            let saldo = parseFloat(estoqueResults[0].saldo) - parseFloat(wqtde);
-            let walt = 'UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc';
-            await this.executeQuery(walt, [
-              { name: 'saldo', type: sql.Decimal, value: saldo.toFixed(3) },
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc1 }
-            ]);
-          }
-        }
-  
-        if (wmov.codloc2 > 0) {
-          let wsele = 'SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc';
-          let estoqueResults = await this.executeQuery(wsele, [
-            { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-            { name: 'codloc', type: sql.Int, value: wcodloc2 }
-          ]);
-  
-          if (estoqueResults.length === 0) {
-            let zqtde = parseFloat(wqtde);
-            let wins = 'INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)';
-            await this.executeQuery(wins, [
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc2 },
-              { name: 'saldo', type: sql.Decimal, value: zqtde }
-            ]);
-          } else {
-            let saldo = parseFloat(estoqueResults[0].saldo) + parseFloat(wqtde);
-            let walt = 'UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc';
-            await this.executeQuery(walt, [
-              { name: 'saldo', type: sql.Decimal, value: saldo.toFixed(3) },
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc2 }
-            ]);
-          }
-        }
-      }
-    } else {
-      // Consultar zmov
-      let wmovResults = await this.executeQuery('SELECT * FROM skill_estoq_movitem WHERE transacao = ' + transacao + ''); // Ajuste a consulta conforme necessário
+    for (const mov of wmovResults) {
 
-      for (let zmov of wmovResults) {
-        const wcodprod = zmov.codprod?.toString().trim();
-        const wqtde = parseFloat(zmov.qtde);
-        const wcodloc1 = zmov.codloc1?.toString().trim();
-        const wcodloc2 = zmov.codloc2?.toString().trim();
+      const wcodprod = mov.codprod?.toString().trim();
+      const wqtde = parseFloat(mov.qtde);
   
-        if (zmov.codloc1 > 0) {
-          let wsele = 'SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc';
-          let estoqueResults = await this.executeQuery(wsele, [
-            { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-            { name: 'codloc', type: sql.Int, value: wcodloc1 }
-          ]);
-  
-          if (estoqueResults.length === 0) {
-            let zqtde = parseFloat(wqtde);
-            let wins = 'INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)';
-            await this.executeQuery(wins, [
+      const processEstoque = async (codloc, isEntrada) => {
+
+        if (codloc > 0) {
+
+          const estoqueResults = await this.executeQuery('SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc',
+            [
               { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc1 },
-              { name: 'saldo', type: sql.Decimal, value: zqtde }
-            ]);
-          } else {
-            let saldo = parseFloat(estoqueResults[0].saldo) + parseFloat(wqtde);
-            let walt = 'UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc';
-            await this.executeQuery(walt, [
-              { name: 'saldo', type: sql.Decimal, value: saldo.toFixed(3) },
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc1 }
-            ]);
-          }
-        }
-  
-        if (zmov.codloc2 > 0) {
-          let wsele = 'SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc';
-          let estoqueResults = await this.executeQuery(wsele, [
-            { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-            { name: 'codloc', type: sql.Int, value: wcodloc2 }
-          ]);
+              { name: 'codloc', type: sql.Int, value: codloc }
+            ]
+          )
   
           if (estoqueResults.length === 0) {
-            let zqtde = (-parseFloat(wqtde));
-            let wins = 'INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)';
-            await this.executeQuery(wins, [
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc2 },
-              { name: 'saldo', type: sql.Decimal, value: zqtde }
-            ]);
+            await this.executeQuery('INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)',
+              [
+                { name: 'codprod', type: sql.NVarChar, value: wcodprod },
+                { name: 'codloc', type: sql.Int, value: codloc },
+                { name: 'saldo', type: sql.Decimal, value: isEntrada ? wqtde : -wqtde }
+              ]
+            )
           } else {
-            let saldo = parseFloat(wqtde) - parseFloat(estoqueResults[0].saldo);
-            let walt = 'UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc';
-            await this.executeQuery(walt, [
-              { name: 'saldo', type: sql.Decimal, value: saldo.toFixed(3) },
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: wcodloc2 }
-            ]);
+            const saldo = parseFloat(estoqueResults[0].saldo) + (isEntrada ? wqtde : -wqtde);
+            await this.executeQuery('UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc',
+              [
+                { name: 'saldo', type: sql.Decimal, value: saldo },
+                { name: 'codprod', type: sql.NVarChar, value: wcodprod },
+                { name: 'codloc', type: sql.Int, value: codloc }
+              ]
+            )
           }
         }
-      }
+      };
+  
+      await processEstoque(mov.codloc1, ws !== 1);
+      await processEstoque(mov.codloc2, ws === 1);
+
     }
   }
 
