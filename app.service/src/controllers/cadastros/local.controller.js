@@ -54,7 +54,7 @@ export class CadastrosLocalController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -82,7 +82,7 @@ export class CadastrosLocalController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -118,7 +118,7 @@ export class CadastrosLocalController {
       })
   
     } catch (error) {
-      res.status(500).json({ message: error.message })
+      Exception.error(res, error)
     }
   }
   

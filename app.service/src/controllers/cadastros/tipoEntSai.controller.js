@@ -54,7 +54,7 @@ export class CadastrosTipoEntSaiController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -82,7 +82,7 @@ export class CadastrosTipoEntSaiController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -121,7 +121,7 @@ export class CadastrosTipoEntSaiController {
         res.status(200).json(tipEntSai)
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
