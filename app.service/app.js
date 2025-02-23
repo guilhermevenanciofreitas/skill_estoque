@@ -61,6 +61,11 @@ export class App {
     const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
     this.express.use(express.static(path.join(__dirname, "public")))
+    this.express.use(express.static(path.join(__dirname, "build")))
+
+    this.express.get("/mobile", (req, res) => {
+      res.sendFile(path.join(__dirname, "build", "index.html"))
+    })
 
     this.express.get("*", (req, res) => {
       res.sendFile(path.join(__dirname, "public", "index.html"))
