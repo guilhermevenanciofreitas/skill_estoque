@@ -1,100 +1,151 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Animated, SafeAreaView } from 'react-native';
+import ProdutoList from './produto';
+import LocalList from './local';
 
-const produtos = [
-  { id: '1', codigo: 'P001', descricao: 'Produto 1', saldo: 100, locais: [{ codigoLocal: 'L001', descricaoLocal: 'Local 1', saldoLocal: 50 }, { codigoLocal: 'L002', descricaoLocal: 'Local 2', saldoLocal: 50 }] },
-  { id: '2', codigo: 'P002', descricao: 'Produto 2', saldo: 200, locais: [{ codigoLocal: 'L003', descricaoLocal: 'Local 3', saldoLocal: 100 }, { codigoLocal: 'L004', descricaoLocal: 'Local 4', saldoLocal: 100 }] },
-  { id: '3', codigo: 'P003', descricao: 'Produto 3', saldo: 300, locais: [{ codigoLocal: 'L005', descricaoLocal: 'Local 5', saldoLocal: 150 }, { codigoLocal: 'L006', descricaoLocal: 'Local 6', saldoLocal: 150 }] },
-];
+const App = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerAnimation] = useState(new Animated.Value(-250));
+  const [selectedScreen, setSelectedScreen] = useState('Produto');
 
-const ProdutoList = () => {
-  const [selectedProductId, setSelectedProductId] = useState(null);
+  const toggleDrawer = () => {
+    Animated.timing(drawerAnimation, {
+      toValue: isDrawerOpen ? -250 : 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
 
-  const renderItem = ({ item }) => {
-    const isSelected = selectedProductId === item.id;
+    setIsDrawerOpen(!isDrawerOpen);
+  };
 
-    return (
-      <View style={styles.itemContainer}>
-        <TouchableOpacity onPress={() => setSelectedProductId(isSelected ? null : item.id)}>
-          <View style={styles.itemHeader}>
-            <View style={styles.productInfo}>
-              <Text style={styles.productCode}>{item.codigo}</Text>
-              <Text>{item.descricao}</Text>
-            </View>
-            <Text style={styles.saldo}>Saldo: {item.saldo}</Text>
-          </View>
-        </TouchableOpacity>
+  const handleOutsidePress = () => {
+    if (isDrawerOpen) {
+      toggleDrawer();
+    }
+  };
 
-        {isSelected && (
-          <View style={styles.sublist}>
-            {item.locais.map((local, index) => (
-              <View key={index} style={[styles.sublistItem, index !== item.locais.length - 1 && styles.sublistItemWithBorder]}>
-                <View style={styles.sublistRow}>
-                  <View style={styles.sublistInfo}>
-                    <Text>Código Local: {local.codigoLocal}</Text>
-                    <Text>Descrição Local: {local.descricaoLocal}</Text>
-                  </View>
-                  <Text style={styles.saldo}>{local.saldoLocal}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-    );
+  const handleMenuItemClick = (screen) => {
+    setSelectedScreen(screen);
+    toggleDrawer();
+  };
+
+  const renderContent = () => {
+
+    switch (selectedScreen) {
+      case "Produto":
+        return <ProdutoList />
+      case "Local":
+        return <LocalList />
+    }
+
+    return <Text style={styles.bodyText}>Conteúdo de {selectedScreen}</Text>;
   };
 
   return (
-    <FlatList
-      data={produtos}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-    />
+    <SafeAreaView style={styles.container}>
+      {/* Fechar menu ao tocar fora */}
+      <TouchableWithoutFeedback onPress={handleOutsidePress}>
+        <View style={[styles.overlay, isDrawerOpen && styles.overlayVisible]} />
+      </TouchableWithoutFeedback>
+
+      {/* Menu Lateral */}
+      <Animated.View style={[styles.drawer, { transform: [{ translateX: drawerAnimation }] }]}>
+        <View style={styles.drawerContent}>
+          <TouchableOpacity onPress={() => handleMenuItemClick('Produto')}>
+            <Text style={styles.drawerItem}>Produto</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleMenuItemClick('Local')}>
+            <Text style={styles.drawerItem}>Local</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+
+      {/* Conteúdo Principal */}
+      <View style={styles.mainContent}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={toggleDrawer}>
+            <Text style={styles.menuButton}>☰</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>{selectedScreen}</Text>
+        </View>
+        <View style={styles.body}>{renderContent()}</View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-  },
-  itemHeader: {
+  container: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    zIndex: 0,
+  },
+  overlayVisible: {
+    zIndex: 1,
+  },
+  drawer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 250,
+    backgroundColor: '#ffffff',
+    paddingTop: 50,
+    zIndex: 2,
+    borderRightWidth: 1,
+    borderRightColor: '#ddd',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 2, height: 2 },
+  },
+  drawerContent: {
+    padding: 20,
+  },
+  drawerItem: {
+    fontSize: 18,
+    color: '#333',
+    marginBottom: 20,
+  },
+  mainContent: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+  },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  productInfo: {
-    flexDirection: 'column',
-  },
-  productCode: {
-    fontWeight: 'bold',
-  },
-  saldo: {
-    fontWeight: 'bold',
-  },
-  sublist: {
-    marginTop: 10,
-    paddingLeft: 10,
-  },
-  sublistItem: {
-    paddingVertical: 10,
-  },
-  sublistItemWithBorder: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 10, // Reduzi a altura do cabeçalho
+    paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',  // Cor cinza da linha
+    borderBottomColor: '#e0e0e0',
   },
-  sublistRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  menuButton: {
+    fontSize: 30,
+    color: '#333',
+    marginRight: 15,
   },
-  sublistInfo: {
-    flexDirection: 'column',
+  title: {
+    fontSize: 20,
+    color: '#333',
+    fontWeight: '600',
+  },
+  body: {
+    flex: 1,
+    padding: 20, // Mantendo espaçamento no conteúdo, sem afetar o header
+  },
+  bodyText: {
+    fontSize: 18,
+    color: '#333',
   },
 });
 
-export default ProdutoList;
+export default App;
