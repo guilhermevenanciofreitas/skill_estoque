@@ -1,5 +1,5 @@
 import { AppContext } from "../../database/index.js"
-import { Authorization } from "../authorization.js"
+import { Authorization } from "../authorization/authorization.js"
 import { formidable } from 'formidable'
 import fs from 'fs'
 import path from 'path'

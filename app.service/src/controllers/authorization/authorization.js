@@ -1,5 +1,5 @@
-import { AppContext } from "../database/index.js"
-import { DateTime } from "../utils/datetime.js"
+import { AppContext } from "../../database/index.js"
+import { DateTime } from "../../utils/datetime.js"
 import dayjs from 'dayjs'
 
 export class Authorization {

@@ -1,5 +1,5 @@
-import { AppContext } from "../../database/index.js"
-import { Authorization } from "../authorization.js"
+import { AppContext } from "../database/index.js"
+import { Authorization } from "./authorization/authorization.js"
 import { formidable } from 'formidable'
 import fs from 'fs'
 import path from 'path'
@@ -12,7 +12,7 @@ import Sequelize from "sequelize"
 
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
-import { Exception } from "../../utils/exception.js"
+import { Exception } from "../utils/exception.js"
 
 import sql from 'mssql'
 
@@ -279,31 +279,38 @@ export class EntradaSaidaController {
 
   processMovimentos = async (ws, transacao) => {
 
-    const wmovResults = await this.executeQuery(`SELECT * FROM skill_estoq_movitem WHERE transacao = ${transacao}`);
-  
-    for (const mov of wmovResults) {
+    const db = new AppContext()
 
-      const wcodprod = mov.codprod?.toString().trim();
-      const wqtde = parseFloat(mov.qtde);
-  
-      const processEstoque = async (codloc, isEntrada) => {
+      //const wmovResults = await this.executeQuery(`SELECT * FROM skill_estoq_movitem WHERE transacao = ${transacao}`);
+      const wmovResults = await db.MovItem.findAll({attributes: ['codprod', 'qtde', 'codloc1', 'codloc2'], where: [{transacao}]})
+
+      for (const mov of wmovResults) {
+
+        const wcodprod = mov.codprod?.toString().trim();
+        const wqtde = parseFloat(mov.qtde);
+    
+        const processEstoque = async (codloc, isEntrada) => {
 
         if (codloc > 0) {
 
+          const estoqueResults = await db.Estoque.findAll({attributes: ['saldo'], where: [{codprod: wcodprod, codloc}]})
+          /*
           const estoqueResults = await this.executeQuery('SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc',
             [
               { name: 'codprod', type: sql.NVarChar, value: wcodprod },
               { name: 'codloc', type: sql.Int, value: codloc }
             ]
           )
+          */
   
           if (estoqueResults.length === 0) {
-            await this.executeQuery('INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (@codprod, @codloc, @saldo)',
-              [
-                { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-                { name: 'codloc', type: sql.Int, value: codloc },
-                { name: 'saldo', type: sql.Decimal, value: isEntrada ? wqtde : -wqtde }
-              ]
+            //await db.MovItem.create({codprod: wcodprod, codloc, saldo: isEntrada ? wqtde : -wqtde})
+            
+            const saldo = isEntrada ? wqtde : -wqtde
+
+            console.log('saldo: ', saldo)
+            await this.executeQuery(`INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (${wcodprod}, ${codloc}, ${saldo})`
+
             )
           } else {
             const saldo = parseFloat(estoqueResults[0].saldo) + (isEntrada ? wqtde : -wqtde);
@@ -322,6 +329,8 @@ export class EntradaSaidaController {
       await processEstoque(mov.codloc2, ws === 1);
 
     }
+
+
   }
 
 }

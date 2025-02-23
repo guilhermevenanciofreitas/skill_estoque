@@ -18,7 +18,7 @@ const fields = [
   { label: 'Descrição', value: 'descricao' },
 ]
 
-class RelatorioProduto extends React.Component {
+export class RelatorioLocal extends React.Component {
 
   componentDidMount = () => {
     this.onSearch()
@@ -27,7 +27,7 @@ class RelatorioProduto extends React.Component {
   onSearch = () => {
     this.setState({loading: true}, async () => {
       try {
-        await new Service().Post('relatorios/produto/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
+        await new Service().Post('relatorios/local/lista', this.state.request).then((result) => this.setState({...result.data})).finally(() => this.setState({loading: false}))
       } catch (error) {
         Exception.error(error.message)
       }
@@ -44,23 +44,22 @@ class RelatorioProduto extends React.Component {
     }
   }
 
-  ExpandedComponent = (produto) => {
+  ExpandedComponent = (local) => {
 
     const columns = [
-      { selector: (row) => row.local?.codloc, name: 'Local', minWidth: '100px', maxWidth: '100px'},
-      { selector: (row) => row.local?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
+      { selector: (row) => row.produto?.codprod, name: 'Local', minWidth: '100px', maxWidth: '100px'},
+      { selector: (row) => row.produto?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
       { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
       //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo * row2.data.custo), name: 'Custo total', minWidth: '120px', maxWidth: '120px', right: true},
     ]
   
-    return <DataTable columns={columns} data={produto.data.estoques} dense />
+    return <DataTable columns={columns} data={local.data.estoques} dense />
   
   }
 
   columns = [
-    { selector: (row) => row.codprod, name: 'Código', minWidth: '100px', maxWidth: '100px'},
+    { selector: (row) => row.codloc, name: 'Código', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => row.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
-    { selector: (row) => row.unidade, name: 'Unidade', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo_total), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
     //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
     //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.customed), name: 'Custo Médio', minWidth: '120px', maxWidth: '120px', right: true},
@@ -70,7 +69,7 @@ class RelatorioProduto extends React.Component {
   render = () => {
 
     return (
-      <>
+      <Panel header={<CustomBreadcrumb menu={'Relatórios'} title={'Locais'} />}>
 
         <PageContent>
           
@@ -114,21 +113,7 @@ class RelatorioProduto extends React.Component {
           </Stack>
           
         </PageContent>
-      </>
-    )
-  }
-}
-
-class Page extends React.Component {
-
-  render = () => {
-    return (
-      <Panel header={<CustomBreadcrumb menu={'Relatórios'} title={'Produtos'} />}>
-        <RelatorioProduto />
       </Panel>
     )
   }
-
 }
-
-export default Page;

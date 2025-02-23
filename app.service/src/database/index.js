@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize'
 import tedious from 'tedious'
-import 'dotenv/config'
 
 import { Estoque } from './models/estoque.model.js'
 import { Local } from './models/local.model.js'
@@ -11,11 +10,13 @@ import { Parceiro } from './models/parceiro.model.js'
 import { MovCab } from './models/movCab.model.js'
 import { MovItem } from './models/movItem.model.js'
 
+import 'dotenv/config'
+
 export class AppContext extends Sequelize {
   
   Estoque = this.define('estoque', new Estoque(), { tableName: 'skill_estoq_estoque' })
 
-  Local = this.define('estoque', new Local(), { tableName: 'skill_estoq_local' })
+  Local = this.define('local', new Local(), { tableName: 'skill_estoq_local' })
 
   MovCab = this.define('movCab', new MovCab(), { tableName: 'skill_estoq_movcab' })
   
@@ -37,18 +38,16 @@ export class AppContext extends Sequelize {
 	  this.MovCab.belongsTo(this.TipoEntSai, {as: 'tipoEntSai', foreignKey: 'codentsai', targetKey: 'codentsai'})
 	  this.MovCab.hasMany(this.MovItem, {as: 'items', foreignKey: 'transacao', targetKey: 'transacao'})
 
-
 	  this.MovItem.belongsTo(this.Produto, {as: 'produto', foreignKey: 'codprod', targetKey: 'codprod'})
 	  this.MovItem.belongsTo(this.Local, {as: 'orig', foreignKey: 'codloc1', targetKey: 'codloc'})
 	  this.MovItem.belongsTo(this.Local, {as: 'dest', foreignKey: 'codloc2', targetKey: 'codloc'})
 
-	  this.Produto.hasMany(this.Estoque, {as: 'estoque', foreignKey: 'codprod', targetKey: 'codprod'})
+	  this.Produto.hasMany(this.Estoque, {as: 'estoques', foreignKey: 'codprod', targetKey: 'codprod'})
 
-    
-	  this.Estoque.hasMany(this.Produto, {as: 'produto', foreignKey: 'codprod', targetKey: 'codprod'})
-	  this.Estoque.hasMany(this.Local, {as: 'local', foreignKey: 'codloc', targetKey: 'codloc'})
+	  this.Local.hasMany(this.Estoque, {as: 'estoques', foreignKey: 'codloc', targetKey: 'codloc'})
 
-    //this.Cte.hasMany(this.CteNfe, {as: 'cteNfes', foreignKey: 'cteId'})
+    this.Estoque.belongsTo(this.Produto, {as: 'produto', foreignKey: 'codprod', targetKey: 'codprod'})
+    this.Estoque.belongsTo(this.Local, {as: 'local', foreignKey: 'codloc', targetKey: 'codloc'})
 
   }
 

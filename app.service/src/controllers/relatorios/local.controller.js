@@ -2,32 +2,31 @@ import Sequelize from "sequelize"
 import { AppContext } from "../../database/index.js"
 import { Exception } from "../../utils/exception.js"
 
-export class RelatorioProdutoController {
+export class RelatorioLocalController {
 
   lista = async (req, res) => {
     //await Authorization.verify(req, res).then(async ({company}) => {
       try {
 
         const db = new AppContext()
-
-        const produtos = await db.Produto.findAll({
-          attributes: ['codprod', 'descricao', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total']],
-          include: [
+        
+        const locais = await db.Local.findAll({
+          attributes: ['codloc', 'descricao', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total']], include: [
             {model: db.Estoque, as: 'estoques', attributes: ['codloc', 'saldo'], include: [
-              {model: db.Local, as: 'local', attributes: ['codloc', 'descricao']}
+              {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
             ]}
           ],
-          group: ['produto.codprod', 'produto.descricao', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.local.id', 'estoques.local.codloc', 'estoques.local.descricao'],
+          group: ['local.codloc', 'local.descricao', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.produto.id', 'estoques.produto.codprod', 'estoques.produto.descricao'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          order: [['descricao', 'ASC']]
+          order: [['descricao', 'asc']]
         })
 
         res.status(200).json({
           response: {
-            rows: produtos
+            rows: locais
           }
         })
-
+    
       } catch (error) {
         Exception.error(res, error)
       }
@@ -35,5 +34,4 @@ export class RelatorioProdutoController {
     //  res.status(400).json({message: error.message})
     //})
   }
-
 }
