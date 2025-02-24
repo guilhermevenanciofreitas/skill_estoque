@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Animated, SafeAreaView } from 'react-native';
-import ProdutoList from './produto';
-import LocalList from './local';
+import { 
+  View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Animated, SafeAreaView 
+} from 'react-native';
+
+import { ProdutoList } from './views/cadastros/produto';
+
+import { RelatorioProdutoList } from './views/relatorios/produto';
+import { RelatorioLocalList } from './views/relatorios/local';
 
 const App = () => {
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerAnimation] = useState(new Animated.Value(-250));
-  const [selectedScreen, setSelectedScreen] = useState('Produto');
+  const [drawerAnimation] = useState(new Animated.Value(-300));
+  const [selectedScreen, setSelectedScreen] = useState('Produtos');
+
+  const [cadastrosExpanded, setCadastrosExpanded] = useState(false);
+  const [relatoriosExpanded, setRelatoriosExpanded] = useState(false);
 
   const toggleDrawer = () => {
     Animated.timing(drawerAnimation, {
-      toValue: isDrawerOpen ? -250 : 0,
+      toValue: isDrawerOpen ? -300 : 0,
       duration: 250,
       useNativeDriver: true,
     }).start();
@@ -29,34 +38,62 @@ const App = () => {
     toggleDrawer();
   };
 
+  const toggleCadastros = () => {
+    setCadastrosExpanded(!cadastrosExpanded);
+  };
+
+  const toggleRelatorios = () => {
+    setRelatoriosExpanded(!relatoriosExpanded);
+  };
+
   const renderContent = () => {
-
     switch (selectedScreen) {
+      case "Produtos":
+        return <ProdutoList />;
       case "Produto":
-        return <ProdutoList />
+        return <RelatorioProdutoList />;
       case "Local":
-        return <LocalList />
+        return <RelatorioLocalList />;
+      default:
+        return <Text style={styles.bodyText}>Conteúdo de {selectedScreen}</Text>;
     }
-
-    return <Text style={styles.bodyText}>Conteúdo de {selectedScreen}</Text>;
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fechar menu ao tocar fora */}
       <TouchableWithoutFeedback onPress={handleOutsidePress}>
         <View style={[styles.overlay, isDrawerOpen && styles.overlayVisible]} />
       </TouchableWithoutFeedback>
 
-      {/* Menu Lateral */}
       <Animated.View style={[styles.drawer, { transform: [{ translateX: drawerAnimation }] }]}>
         <View style={styles.drawerContent}>
-          <TouchableOpacity onPress={() => handleMenuItemClick('Produto')}>
-            <Text style={styles.drawerItem}>Produto</Text>
+          
+          {/* Cadastros */}
+          <TouchableOpacity onPress={toggleCadastros} style={styles.menuItem}>
+            <Text style={styles.menuText}>{cadastrosExpanded ? "🔽" : "➡"} Cadastros</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleMenuItemClick('Local')}>
-            <Text style={styles.drawerItem}>Local</Text>
+          {cadastrosExpanded && (
+            <View style={styles.subMenu}>
+              <TouchableOpacity onPress={() => handleMenuItemClick('Produtos')} style={styles.subMenuItem}>
+                <Text style={styles.subMenuText}>📦 Produtos</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Relatórios */}
+          <TouchableOpacity onPress={toggleRelatorios} style={styles.menuItem}>
+            <Text style={styles.menuText}>{relatoriosExpanded ? "🔽" : "➡"} Relatórios</Text>
           </TouchableOpacity>
+          {relatoriosExpanded && (
+            <View style={styles.subMenu}>
+              <TouchableOpacity onPress={() => handleMenuItemClick('Produto')} style={styles.subMenuItem}>
+                <Text style={styles.subMenuText}>📊 Produtos</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleMenuItemClick('Local')} style={styles.subMenuItem}>
+                <Text style={styles.subMenuText}>📍 Locais</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </Animated.View>
 
@@ -96,7 +133,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 250,
+    width: 280,
     backgroundColor: '#ffffff',
     paddingTop: 50,
     zIndex: 2,
@@ -108,12 +145,34 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 2 },
   },
   drawerContent: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
-  drawerItem: {
-    fontSize: 18,
+  menuItem: {
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  menuText: {
+    fontSize: 20,
+    fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+  },
+  subMenu: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 5,
+  },
+  subMenuItem: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  subMenuText: {
+    fontSize: 18,
+    color: '#555',
   },
   mainContent: {
     flex: 1,
@@ -123,24 +182,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    paddingVertical: 10, // Reduzi a altura do cabeçalho
+    paddingVertical: 12,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   menuButton: {
-    fontSize: 30,
+    fontSize: 32,
     color: '#333',
     marginRight: 15,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     color: '#333',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   body: {
     flex: 1,
-    padding: 20, // Mantendo espaçamento no conteúdo, sem afetar o header
+    padding: 20,
   },
   bodyText: {
     fontSize: 18,
