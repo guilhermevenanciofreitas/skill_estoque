@@ -4,6 +4,7 @@ export class Produto {
 
   codprod = {
     field: 'codprod',
+    primaryKey: true,
     type: Sequelize.NUMBER,
   }
 

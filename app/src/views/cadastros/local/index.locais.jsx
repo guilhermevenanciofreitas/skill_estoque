@@ -21,20 +21,12 @@ const fields = [
   { label: 'Descrição', value: 'descricao' },
 ]
 
-class CadastrosLocais extends React.Component {
+export class CadastroLocais extends React.Component {
 
   ViewLocal = React.createRef()
 
   componentDidMount = () => {
     this.onSearch()
-  }
-
-  onApplyDate = (date) => {
-    //this.setState({request: {date}})
-  }
-
-  onApplyFilter = (filter) => {
-    this.setState({request: {filter}}, () => this.onSearch())
   }
 
   onSearch = () => {
@@ -82,7 +74,7 @@ class CadastrosLocais extends React.Component {
   render = () => {
 
     return (
-      <>
+      <Panel header={<CustomBreadcrumb menu={'Cadastros'} title={'Local'} />}>
 
         <ViewLocal ref={this.ViewLocal} />
 
@@ -108,30 +100,16 @@ class CadastrosLocais extends React.Component {
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-            <div>
+            <Stack spacing={5}>
               <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoLocal}>&nbsp;Novo</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarLocal(this.state?.selecteds[0]?.codloc)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}} onClick={this.onExcluirLocal}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
-            </div>
+              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} onClick={() => this.onEditarLocal(this.state?.selecteds[0]?.codloc)}>&nbsp;Editar</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} onClick={this.onExcluirLocal}>&nbsp;Excluir</Button>
+            </Stack>
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
           </Stack>
           
         </PageContent>
-      </>
-    )
-  }
-}
-
-class Page extends React.Component {
-
-  render = () => {
-    return (
-      <Panel header={<CustomBreadcrumb menu={'Cadastros'} title={'Local'} />}>
-        <CadastrosLocais />
       </Panel>
     )
   }
-
 }
-
-export default Page;

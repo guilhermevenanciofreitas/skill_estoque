@@ -1,5 +1,5 @@
 import { AppContext } from "../../database/index.js"
-import { Authorization } from "../authorization.js"
+import { Authorization } from "../authorization/authorization.js"
 import { formidable } from 'formidable'
 import fs from 'fs'
 import path from 'path'
@@ -53,7 +53,7 @@ export class CadastrosUnidadeController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -81,7 +81,7 @@ export class CadastrosUnidadeController {
         })
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -114,7 +114,7 @@ export class CadastrosUnidadeController {
         res.status(200).json(unidade)
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})
@@ -136,7 +136,7 @@ export class CadastrosUnidadeController {
         res.status(200).json({})
 
       } catch (error) {
-        res.status(500).json({message: error.message})
+        Exception.error(res, error)
       }
     //}).catch((error) => {
     //  res.status(400).json({message: error.message})

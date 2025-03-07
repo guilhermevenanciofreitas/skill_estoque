@@ -44,18 +44,16 @@ class RelatorioProduto extends React.Component {
     }
   }
 
-  ExpandedComponent = (row2) => {
+  ExpandedComponent = (produto) => {
 
-    const result = _.filter(this.state?.response?.estoqueLocais, (c) => c.codprod == row2.data.codprod)
-    
     const columns = [
-      { selector: (row) => row.codloc, name: 'Local', minWidth: '100px', maxWidth: '100px'},
-      { selector: (row) => _.filter(this.state?.response?.locais, (c) => c.id == row.codloc)[0].descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
+      { selector: (row) => row.local?.codloc, name: 'Local', minWidth: '100px', maxWidth: '100px'},
+      { selector: (row) => row.local?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
       { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
-      { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo * row2.data.custo), name: 'Custo total', minWidth: '120px', maxWidth: '120px', right: true},
+      //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo * row2.data.custo), name: 'Custo total', minWidth: '120px', maxWidth: '120px', right: true},
     ]
   
-    return <DataTable columns={columns} data={result} dense />
+    return <DataTable columns={columns} data={produto.data.estoques} dense />
   
   }
 
@@ -63,9 +61,10 @@ class RelatorioProduto extends React.Component {
     { selector: (row) => row.codprod, name: 'Código', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => row.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
     { selector: (row) => row.unidade, name: 'Unidade', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo * row.saldo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo_total), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
+    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
+    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.customed), name: 'Custo Médio', minWidth: '120px', maxWidth: '120px', right: true},
+    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.ultcomp), name: 'Vlr.Ult.Comp', minWidth: '120px', maxWidth: '120px', right: true},
   ]
 
   render = () => {
@@ -94,8 +93,10 @@ class RelatorioProduto extends React.Component {
           <DataTable columns={this.columns} rows={this.state?.response?.rows} loading={this.state?.loading} onItem={(row) => this.onEditarEntradaSaida(row.transacao)} selectedRows={true} onSelected={(selecteds) => this.setState({selecteds})} />
    */}
 
-          <div style={{cursor: 'pointer', width: '100%', marginTop: '15px', maxHeight: '100%', height: 'calc(100vh - 370px)'}}>
+          <div style={{cursor: 'pointer', width: '100%', marginTop: '15px', maxHeight: '100%', height: 'calc(100vh - 360px)', overflow: 'auto'}}>
             <DataTable
+              fixedHeader
+              fixedHeaderScrollHeight='100%'
               dense
               columns={this.columns}
               data={this.state?.response?.rows || []}

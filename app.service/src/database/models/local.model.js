@@ -4,6 +4,7 @@ export class Local {
 
   codloc = {
     field: 'codloc',
+    primaryKey: true,
     type: Sequelize.NUMBER,
   }
 

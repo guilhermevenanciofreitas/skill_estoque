@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { SearchController } from '../controllers/search.js'
+import { SearchController } from '../controllers/search/search.js'
 
 export class SearchRoute {
 

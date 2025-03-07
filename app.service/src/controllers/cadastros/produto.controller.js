@@ -1,5 +1,5 @@
 import { AppContext } from "../../database/index.js"
-import { Authorization } from "../authorization.js"
+import { Authorization } from "../authorization/authorization.js"
 import { formidable } from 'formidable'
 import fs from 'fs'
 import path from 'path'
@@ -10,9 +10,12 @@ import dayjs from "dayjs"
 import Sequelize from "sequelize"
 //import axios from 'axios'
 
+import ejs from 'ejs'
+
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 import { Exception } from "../../utils/exception.js"
+import { Report } from "../../reports/index.js"
 
 export class CadastrosProdutoController {
 
@@ -167,5 +170,36 @@ export class CadastrosProdutoController {
     //  res.status(400).json({message: error.message})
     //})
   }
+
+  imprimir = async (req, res) => {
+    //await Authorization.verify(req, res).then(async ({company}) => {
+      try {
+
+        const db = new AppContext()
+
+        const produtos = await db.Produto.findAll({
+          attributes: ['codprod', 'descricao', 'unidade', 'custo', 'customed', 'ultcomp'],
+          order: [['descricao', 'asc']]
+        })
+
+        const report = await Report.generate({
+          report: 'produtos.html',
+          title: 'Relatório de produtos',
+          data: {
+            items: produtos
+          }
+        });
+        
+
+        res.status(200).json({pdf: report})
+
+      } catch (error) {
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
 
 }

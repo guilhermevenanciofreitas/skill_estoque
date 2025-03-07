@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { EntradaSaidaController } from '../../controllers/cadastros/entradaSaida.controller.js'
+import { EntradaSaidaController } from '../../controllers/entradaSaida.controller.js'
 
 export class EntradaSaidaRoute {
 

@@ -1,7 +1,7 @@
-import { Authorization } from "./authorization.js";
-import { AppContext } from '../database/index.js'
+import { Authorization } from "../authorization/authorization.js";
+import { AppContext } from '../../database/index.js'
 import Sequelize from "sequelize"
-import { Exception } from "../utils/exception.js";
+import { Exception } from "../../utils/exception.js";
 
 export class SearchController {
 
@@ -62,7 +62,7 @@ export class SearchController {
                 })
 
                 const produtos = await db.Produto.findAll({
-                    attributes: ['codprod', 'descricao', 'unidade'],
+                    attributes: ['codprod', 'descricao', 'unidade', 'custo'],
                     where,
                     order: [
                         ['descricao', 'asc']

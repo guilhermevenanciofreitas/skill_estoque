@@ -51,14 +51,14 @@ export const appNavs = [
     icon: <Icon as={FaArchive} />,
     children: [
       {
-        eventKey: 'relatorios-produtos',
+        eventKey: 'relatorios-produto',
         title: 'Produtos',
-        to: '/relatorios/produtos'
+        to: '/relatorios/produto'
       },
       {
-        eventKey: 'relatorios-locais',
+        eventKey: 'relatorios-local',
         title: 'Locais',
-        to: '/relatorios/locais'
+        to: '/relatorios/local'
       },
     ]
   },

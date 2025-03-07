@@ -115,11 +115,11 @@ class CadastrosTipoEntSai extends React.Component {
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-            <div>
+            <Stack spacing={5}>
               <Button appearance='primary' color='blue' startIcon={<FaPlusCircle />} onClick={this.onNovoTipoEntSai}>&nbsp;Novo</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} style={{marginLeft: '10px'}} onClick={() => this.onEditarTipoEntSai(this.state?.selecteds[0]?.codentsai)}>&nbsp;Editar</Button>
-              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} style={{marginLeft: '10px'}} onClick={this.onExcluirTipoEntradaSaida}>&nbsp;Excluir {_.size(this.state?.selecteds)} registro(s)</Button>
-            </div>
+              <Button appearance='primary' color='blue' startIcon={<FaEdit />} disabled={_.size(this.state?.selecteds) != 1} onClick={() => this.onEditarTipoEntSai(this.state?.selecteds[0]?.codentsai)}>&nbsp;Editar</Button>
+              <Button appearance='primary' color='blue' startIcon={<FaTrash />} disabled={_.size(this.state?.selecteds) == 0} onClick={this.onExcluirTipoEntradaSaida}>&nbsp;Excluir</Button>
+            </Stack>
             <CustomPagination isLoading={this.state?.loading} total={this.state?.response?.count} limit={this.state?.request?.limit} activePage={this.state?.request?.offset + 1} onChangePage={(offset) => this.setState({request: {...this.state.request, offset: offset - 1}}, () => this.onSearch())} onChangeLimit={(limit) => this.setState({request: {...this.state.request, limit}}, () => this.onSearch())} />
           </Stack>
           
