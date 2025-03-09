@@ -13,12 +13,16 @@ import _ from 'lodash'
 import { times } from 'lodash'
 import DataTable from 'react-data-table-component'
 import { Exception } from '../../utils/exception'
+import { Loading } from '../../App'
+import { ReportViewer } from '../../controls/components/ReportViewer'
 
 const fields = [
   { label: 'Descrição', value: 'descricao' },
 ]
 
 export class RelatorioLocal extends React.Component {
+
+  ReportViewer = React.createRef()
 
   componentDidMount = () => {
     this.onSearch()
@@ -36,11 +40,27 @@ export class RelatorioLocal extends React.Component {
 
   onImprimir = async () => {
     try {
+    
+      Loading.Show('Imprimindo...')
 
-      await new Service().Post('relatorios/produto/pdf')
+      if (_.size(this.state?.selectedRows) > 1) {
+        alert('Informe apenas um local para imprimir')
+        return
+      }
+
+      if (_.size(this.state?.selectedRows) == 0) {
+        alert('Informe pelo menos um local para imprimir')
+        return
+      }
+
+      const report = await new Service().Post('relatorios/local/imprimir', this.state?.selectedRows.map((c) => c.codloc))
+      
+      this.ReportViewer.current?.visualize(report.data.pdf)
 
     } catch (error) {
-      Exception.error(error.message)
+      Exception.error(error)
+    } finally {
+      Loading.Hide()
     }
   }
 
@@ -50,7 +70,6 @@ export class RelatorioLocal extends React.Component {
       { selector: (row) => row.produto?.codprod, name: 'Local', minWidth: '100px', maxWidth: '100px'},
       { selector: (row) => row.produto?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
       { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
-      //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo * row2.data.custo), name: 'Custo total', minWidth: '120px', maxWidth: '120px', right: true},
     ]
   
     return <DataTable columns={columns} data={local.data.estoques} dense />
@@ -61,9 +80,6 @@ export class RelatorioLocal extends React.Component {
     { selector: (row) => row.codloc, name: 'Código', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => row.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo_total), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
-    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.custo), name: 'Custo', minWidth: '120px', maxWidth: '120px', right: true},
-    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.customed), name: 'Custo Médio', minWidth: '120px', maxWidth: '120px', right: true},
-    //{ selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.ultcomp), name: 'Vlr.Ult.Comp', minWidth: '120px', maxWidth: '120px', right: true},
   ]
 
   render = () => {
@@ -71,6 +87,8 @@ export class RelatorioLocal extends React.Component {
     return (
       <Panel header={<CustomBreadcrumb menu={'Relatórios'} title={'Locais'} />}>
 
+        <ReportViewer ref={this.ReportViewer} />
+        
         <PageContent>
           
           <Stack spacing={'6px'} direction={'row'} alignItems={'flex-start'} justifyContent={'space-between'}>
@@ -88,10 +106,6 @@ export class RelatorioLocal extends React.Component {
             })}
           </Nav>
 
-{/*
-          <DataTable columns={this.columns} rows={this.state?.response?.rows} loading={this.state?.loading} onItem={(row) => this.onEditarEntradaSaida(row.transacao)} selectedRows={true} onSelected={(selecteds) => this.setState({selecteds})} />
-   */}
-
           <div style={{cursor: 'pointer', width: '100%', marginTop: '15px', maxHeight: '100%', height: 'calc(100vh - 360px)', overflow: 'auto'}}>
             <DataTable
               fixedHeader
@@ -101,15 +115,17 @@ export class RelatorioLocal extends React.Component {
               data={this.state?.response?.rows || []}
               expandableRows={true}
               expandableRowsComponent={this.ExpandedComponent}
+              selectableRows
+              onSelectedRowsChange={(args) => this.setState({selectedRows: args.selectedRows})}
             />
           </div>
 
           <hr></hr>
           
           <Stack direction='row' alignItems='flexStart' justifyContent='space-between'>
-            <div>
+            <Stack spacing={5}>
               <Button appearance='primary' color='blue' startIcon={<FaPrint />} onClick={this.onImprimir}>&nbsp;Imprimir</Button>
-            </div>
+            </Stack>
           </Stack>
           
         </PageContent>

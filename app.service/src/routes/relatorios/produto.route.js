@@ -12,6 +12,7 @@ export class RelatorioProdutoRoute {
 
     intializeRoutes() {
         this.router.post('/lista', async (req, res) => await this.controller.lista(req, res))
+        this.router.post('/imprimir', async (req, res) => await this.controller.imprimir(req, res))
     }
 
 }

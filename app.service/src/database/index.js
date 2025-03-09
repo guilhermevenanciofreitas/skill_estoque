@@ -32,7 +32,12 @@ export class AppContext extends Sequelize {
 
   constructor() {
 
-    super({host: '191.252.205.101', port: 1433, database: 'atlanta', password: '@Rped94ft', username: 'sa', dialect: 'mssql', dialectModule: tedious, databaseVersion: '10.50.1600', timezone: "America/Sao_Paulo", dialectOptions: { options: { requestTimeout: 300000, encrypt: false }}, define: { timestamps: false }})
+    super({host: '191.252.205.101', port: 1433, database: 'atlanta', password: '@Rped94ft', username: 'sa', dialect: 'mssql', dialectModule: tedious, timezone: "America/Sao_Paulo", dialectOptions: { options: { useUTC: false, dateFirst: 1, requestTimeout: 300000, encrypt: false }}, define: { timestamps: false }, logging: (query, options) => {
+      if (options.bind) {
+        Object.keys(options.bind).forEach((key) => query = query.replace(`@${key}`, `'${options.bind[key]}'`))
+      }
+      console.log(query)
+    }})
 
 	  this.MovCab.belongsTo(this.Parceiro, {as: 'parceiro', foreignKey: 'codparc', targetKey: 'codparc'})
 	  this.MovCab.belongsTo(this.TipoEntSai, {as: 'tipoEntSai', foreignKey: 'codentsai', targetKey: 'codentsai'})

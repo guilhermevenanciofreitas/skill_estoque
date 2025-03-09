@@ -48,7 +48,7 @@ export class EntradaSaidaController {
           ],
           limit: limit,
           offset: offset * limit,
-          //order: [['descricao', 'asc']],
+          order: [['transacao', 'desc']],
           where
         })
 
@@ -99,6 +99,8 @@ export class EntradaSaidaController {
             transaction
           })
 
+          console.log(movCabs.dataValues)
+
           movCabs.dataValues.items = movItems
 
           res.status(200).json(movCabs)
@@ -121,7 +123,7 @@ export class EntradaSaidaController {
           transacao: req.body.transacao,
           codparc: req.body.parceiro?.codparc || null,
           codentsai: req.body.tipoEntSai?.codentsai || null,
-          emissao: req.body.emissao || null,
+          emissao: req.body.emissao,
           dtmov: req.body.dtmov,
           numdoc: req.body.numdoc,
           total: req.body.total,
