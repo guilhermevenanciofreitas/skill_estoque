@@ -53,7 +53,7 @@ export class CadastroUnidades extends React.Component {
 
   onExcluirUnidade = async () => {
     try {
-      const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+      const r = await Swal.fire({text: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
       if (!r.isConfirmed) return
       Loading.Show('Excluindo...')
       await new Service().Post('cadastros/unidade/excluir', _.map(this.state?.selecteds, (c) => c.unidade))
