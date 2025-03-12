@@ -18,6 +18,56 @@ import sql from 'mssql'
 
 export class EntradaSaidaController {
 
+  tipoOperacoes = async (req, res) => {
+    //await Authorization.verify(req, res).then(async ({company}) => {
+      try {
+
+        const db = new AppContext()
+
+        const { tipo } = req.body
+
+        const where = [{tipo}]
+
+        const tipoEntSai = await db.TipoEntSai.findAll({
+          attributes: ['codentsai', 'descricao'],
+          order: [['descricao', 'asc']],
+          where
+        })
+
+        res.status(200).json(tipoEntSai)
+
+      } catch (error) {
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
+  locais = async (req, res) => {
+    //await Authorization.verify(req, res).then(async ({company}) => {
+      try {
+
+        const db = new AppContext()
+
+        const where = [{}]
+
+        const locais = await db.Local.findAll({
+          attributes: ['codloc', 'descricao'],
+          order: [['descricao', 'asc']],
+          where
+        })
+
+        res.status(200).json(locais)
+
+      } catch (error) {
+        Exception.error(res, error)
+      }
+    //}).catch((error) => {
+    //  res.status(400).json({message: error.message})
+    //})
+  }
+
   lista = async (req, res) => {
     //await Authorization.verify(req, res).then(async ({company}) => {
       try {
@@ -30,16 +80,6 @@ export class EntradaSaidaController {
 
         const where = []
 
-        /*
-        if (search?.input) {
-
-          if (search?.picker == 'descricao') {
-            where.push({'descricao': {[Sequelize.Op.like]: `%${search.input.replace(' ', "%")}%`}})
-          }
-  
-        }
-        */
-        
         const movCabs = await db.MovCab.findAndCountAll({
           attributes: ['transacao', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
           include: [
@@ -99,8 +139,6 @@ export class EntradaSaidaController {
             transaction
           })
 
-          console.log(movCabs.dataValues)
-
           movCabs.dataValues.items = movItems
 
           res.status(200).json(movCabs)
@@ -137,17 +175,20 @@ export class EntradaSaidaController {
         await db.transaction(async (transaction) => {
 
           if (_.isNil(movCab.transacao)) {
+
             const lastTransacao = await db.MovCab.max('transacao', { transaction })
             movCab.transacao = lastTransacao ? lastTransacao + 1 : 1
             movCab.inclusao = dayjs().format('YYYY-MM-DD HH:mm')
             movCab = await db.MovCab.create(movCab, {transaction})
+
           } else {
+
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
-            await this.processMovimentos(2, movCab.transacao)
-          }
 
-          await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
+            await this.atualizarEstoque(-1, movCab.transacao, movItems, transaction) // Reverte estoque antigo
+
+          }
 
           for (const item of movItems) {
 
@@ -164,10 +205,10 @@ export class EntradaSaidaController {
 
           }
 
+          await this.atualizarEstoque(1, movCab.transacao, movItems, transaction) // Aplica novo estoque
+
         })
 
-        await this.processMovimentos(1, movCab.transacao)
-       
         res.status(200).json(movCab)
 
       } catch (error) {
@@ -178,161 +219,59 @@ export class EntradaSaidaController {
     //})
   }
 
-  tipoOperacoes = async (req, res) => {
-    //await Authorization.verify(req, res).then(async ({company}) => {
-      try {
+  atualizarEstoque = async (multiplicador, transacao, movItems, transaction) => {
 
-        const db = new AppContext()
+    const db = new AppContext();
 
-        const { tipo } = req.body
-
-        const where = [{tipo}]
-
-        /*
-        if (search?.input) {
-
-          if (search?.picker == 'descricao') {
-            where.push({'descricao': {[Sequelize.Op.like]: `%${search.input.replace(' ', "%")}%`}})
-          }
-  
-        }
-        */
-        
-        const tipoEntSai = await db.TipoEntSai.findAll({
-          attributes: ['codentsai', 'descricao'],
-          order: [['descricao', 'asc']],
-          where
-        })
-
-        res.status(200).json(tipoEntSai)
-
-      } catch (error) {
-        Exception.error(res, error)
-      }
-    //}).catch((error) => {
-    //  res.status(400).json({message: error.message})
-    //})
-  }
-
-  locais = async (req, res) => {
-    //await Authorization.verify(req, res).then(async ({company}) => {
-      try {
-
-        const db = new AppContext()
-
-        const where = [{}]
-
-        const locais = await db.Local.findAll({
-          attributes: ['codloc', 'descricao'],
-          order: [['descricao', 'asc']],
-          where
-        })
-
-        res.status(200).json(locais)
-
-      } catch (error) {
-        Exception.error(res, error)
-      }
-    //}).catch((error) => {
-    //  res.status(400).json({message: error.message})
-    //})
-  }
-
-  executeQuery = async (query, params = []) => {
-    try {
-      // Configuração de conexão
-      const pool = await sql.connect({
-        user: 'sa',
-        password: '@Rped94ft',
-        server: '191.252.205.101', // Ex: localhost ou IP do servidor
-        database: 'atlanta',
-        options: {
-          encrypt: true, // Para Azure, defina como true
-          trustServerCertificate: true, // Para produção, configure corretamente
-        }
-      });
-  
-      // Preparar a consulta com parâmetros
-      const request = pool.request();
-
-      // Checa se o parâmetro foi passado corretamente
-      if (Array.isArray(params)) {
-        params.forEach((param) => {
-          if (param && param.name && param.type) {
-            request.input(param.name, param.type, param.value);
-          } else {
-            throw new Error("Parâmetro inválido: ");
-          }
-        });
-      }
-
-      // Executando a consulta
-      const result = await request.query(query);
-
-      console.log(query)
+    const movCab = await db.MovCab.findOne({ where: { transacao }, transaction, include: [{ model: db.TipoEntSai, as: 'tipoEntSai' }] })
     
-      // Fechando a conexão
-      await pool.close();
-      return result.recordset; // Retorna os dados do recordset
-    } catch (error) {
-      throw error
-    }
-  }
+    for (const item of movItems) {
 
-  processMovimentos = async (ws, transacao) => {
-
-    const db = new AppContext()
-
-      //const wmovResults = await this.executeQuery(`SELECT * FROM skill_estoq_movitem WHERE transacao = ${transacao}`);
-      const wmovResults = await db.MovItem.findAll({attributes: ['codprod', 'qtde', 'codloc1', 'codloc2'], where: [{transacao}]})
-
-      for (const mov of wmovResults) {
-
-        const wcodprod = mov.codprod?.toString().trim();
-        const wqtde = parseFloat(mov.qtde);
-    
-        const processEstoque = async (codloc, isEntrada) => {
-
-        if (codloc > 0) {
-
-          const estoqueResults = await db.Estoque.findAll({attributes: ['saldo'], where: [{codprod: wcodprod, codloc}]})
-          /*
-          const estoqueResults = await this.executeQuery('SELECT * FROM skill_estoq_estoque WHERE codprod = @codprod AND codloc = @codloc',
-            [
-              { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-              { name: 'codloc', type: sql.Int, value: codloc }
-            ]
+      const { codprod, qtde, codloc1, codloc2 } = item
+      const fator = qtde * multiplicador
+      
+      let estoqueOrig = await db.Estoque.findOne({ where: { codprod, codloc: codloc1 }, transaction })
+      let estoqueDest = await db.Estoque.findOne({ where: { codprod, codloc: codloc2 }, transaction })
+      
+      if (movCab.tipoEntSai.tipo === 'E') {
+        if (estoqueDest) {
+          await db.Estoque.update(
+            { quantidade: estoqueDest.quantidade + fator },
+            { where: { codprod, codloc: codloc2 }, transaction }
           )
-          */
-  
-          if (estoqueResults.length === 0) {
-            //await db.MovItem.create({codprod: wcodprod, codloc, saldo: isEntrada ? wqtde : -wqtde})
-            
-            const saldo = isEntrada ? wqtde : -wqtde
-
-            console.log('saldo: ', saldo)
-            await this.executeQuery(`INSERT INTO skill_estoq_estoque (codprod, codloc, saldo) VALUES (${wcodprod}, ${codloc}, ${saldo})`
-
-            )
-          } else {
-            const saldo = parseFloat(estoqueResults[0].saldo) + (isEntrada ? wqtde : -wqtde);
-            await this.executeQuery('UPDATE skill_estoq_estoque SET saldo = @saldo WHERE codprod = @codprod AND codloc = @codloc',
-              [
-                { name: 'saldo', type: sql.Decimal, value: saldo },
-                { name: 'codprod', type: sql.NVarChar, value: wcodprod },
-                { name: 'codloc', type: sql.Int, value: codloc }
-              ]
-            )
-          }
+        } else {
+          await db.Estoque.create(
+            { codprod, codloc: codloc2, quantidade: fator },
+            { transaction }
+          )
         }
-      };
-  
-      await processEstoque(mov.codloc1, ws !== 1);
-      await processEstoque(mov.codloc2, ws === 1);
-
+      } else if (movCab.tipoEntSai.tipo === 'S') {
+        if (estoqueOrig) {
+          await db.Estoque.update(
+            { quantidade: estoqueOrig.quantidade - fator },
+            { where: { codprod, codloc: codloc1 }, transaction }
+          )
+        }
+      } else if (movCab.tipoEntSai.tipo === 'A') {
+        if (estoqueOrig) {
+          await db.Estoque.update(
+            { quantidade: estoqueOrig.quantidade - fator },
+            { where: { codprod, codloc: codloc1 }, transaction }
+          )
+        }
+        if (estoqueDest) {
+          await db.Estoque.update(
+            { quantidade: estoqueDest.quantidade + fator },
+            { where: { codprod, codloc: codloc2 }, transaction }
+          )
+        } else {
+          await db.Estoque.create(
+            { codprod, codloc: codloc2, quantidade: fator },
+            { transaction }
+          )
+        }
+      }
     }
-
-
   }
 
 }
