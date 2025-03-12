@@ -186,7 +186,16 @@ export class EntradaSaidaController {
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
 
-            await this.atualizarEstoque(-1, movCab.transacao, movItems, transaction) // Reverte estoque antigo
+            const movItemsAnterior = await db.MovItem.findAll({
+              include: [
+                {model: db.Produto, as: 'produto'},
+                {model: db.Local, as: 'orig'},
+                {model: db.Local, as: 'dest'}
+              ],
+              where: [{transacao: movCab.transacao}]
+            })
+
+            await this.atualizarEstoque(-1, movCab.transacao, movItemsAnterior, transaction) // Reverte estoque antigo
 
           }
 
@@ -227,46 +236,57 @@ export class EntradaSaidaController {
     
     for (const item of movItems) {
 
-      const { codprod, qtde, codloc1, codloc2 } = item
-      const fator = qtde * multiplicador
-      
-      let estoqueOrig = await db.Estoque.findOne({ where: { codprod, codloc: codloc1 }, transaction })
-      let estoqueDest = await db.Estoque.findOne({ where: { codprod, codloc: codloc2 }, transaction })
-      
+      const fator = parseFloat(item.qtde) * multiplicador
+
       if (movCab.tipoEntSai.tipo === 'E') {
+
+        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction })
+
+        const estoque = parseFloat(estoqueDest.saldo)
+
         if (estoqueDest) {
           await db.Estoque.update(
-            { quantidade: estoqueDest.quantidade + fator },
-            { where: { codprod, codloc: codloc2 }, transaction }
+            { saldo: estoque + fator },
+            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction }
           )
         } else {
           await db.Estoque.create(
-            { codprod, codloc: codloc2, quantidade: fator },
+            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator },
             { transaction }
           )
         }
       } else if (movCab.tipoEntSai.tipo === 'S') {
+      
+        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction })
+
+        const estoque = parseFloat(estoqueOrig.saldo)
+
         if (estoqueOrig) {
           await db.Estoque.update(
-            { quantidade: estoqueOrig.quantidade - fator },
-            { where: { codprod, codloc: codloc1 }, transaction }
+            { saldo: estoque - fator },
+            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction }
           )
         }
+
       } else if (movCab.tipoEntSai.tipo === 'A') {
+
+        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction })
+        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction })
+      
         if (estoqueOrig) {
           await db.Estoque.update(
-            { quantidade: estoqueOrig.quantidade - fator },
-            { where: { codprod, codloc: codloc1 }, transaction }
+            { saldo: parseFloat(estoqueOrig.saldo) - fator },
+            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction }
           )
         }
         if (estoqueDest) {
           await db.Estoque.update(
-            { quantidade: estoqueDest.quantidade + fator },
-            { where: { codprod, codloc: codloc2 }, transaction }
+            { saldo: parseFloat(estoqueDest.saldo) + fator },
+            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction }
           )
         } else {
           await db.Estoque.create(
-            { codprod, codloc: codloc2, quantidade: fator },
+            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator },
             { transaction }
           )
         }
