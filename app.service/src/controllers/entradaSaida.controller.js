@@ -184,6 +184,7 @@ export class EntradaSaidaController {
           } else {
 
             movCab.alteracao = dayjs().format('YYYY-MM-DD HH:mm')
+
             await db.MovCab.update(movCab, {where: [{transacao: movCab.transacao}], transaction})
 
             const movItemsAnterior = await db.MovItem.findAll({
@@ -195,7 +196,9 @@ export class EntradaSaidaController {
               where: [{transacao: movCab.transacao}]
             })
 
-            await this.atualizarEstoque(-1, movCab.transacao, movItemsAnterior, transaction) // Reverte estoque antigo
+            await this.atualizarEstoque(-1, movCab.transacao, _.cloneDeep(movItemsAnterior), transaction) // Reverte estoque antigo
+
+            await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
 
           }
 
@@ -214,7 +217,7 @@ export class EntradaSaidaController {
 
           }
 
-          await this.atualizarEstoque(1, movCab.transacao, movItems, transaction) // Aplica novo estoque
+          await this.atualizarEstoque(1, movCab.transacao, _.cloneDeep(movItems), transaction) // Aplica novo estoque
 
         })
 
