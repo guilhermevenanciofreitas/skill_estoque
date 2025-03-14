@@ -12,6 +12,7 @@ import { EntradaSaidaRoute } from './src/routes/cadastros/entradaSaida.route.js'
 import { SearchRoute } from './src/routes/search.js'
 import { RelatorioProdutoRoute } from './src/routes/relatorios/produto.route.js'
 import { RelatorioLocalRoute } from './src/routes/relatorios/local.route.js'
+import { RelatorioMovimentacaoRoute } from './src/routes/relatorios/movimentacao.route.js'
 
 export class App {
 
@@ -49,6 +50,7 @@ export class App {
     this.express.use('/api/cadastros/parceiro', new ParceiroRoute().router)
 
     //Relatorios
+    this.express.use('/api/relatorios/movimentacao', new RelatorioMovimentacaoRoute().router)
     this.express.use('/api/relatorios/produto', new RelatorioProdutoRoute().router)
     this.express.use('/api/relatorios/local', new RelatorioLocalRoute().router)
 

@@ -13,6 +13,7 @@ export class SearchRoute {
     intializeRoutes() {
         this.router.post('/parceiro', async (req, res) => await this.controller.parceiro(req, res))
         this.router.post('/produto', async (req, res) => await this.controller.produto(req, res))
+        this.router.post('/tipo-entrada-saida', async (req, res) => await this.controller.tipoEntradaSaida(req, res))
     }
 
 }

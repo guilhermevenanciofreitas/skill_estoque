@@ -43,6 +43,8 @@ export class AppContext extends Sequelize {
 	  this.MovCab.belongsTo(this.TipoEntSai, {as: 'tipoEntSai', foreignKey: 'codentsai', targetKey: 'codentsai'})
 	  this.MovCab.hasMany(this.MovItem, {as: 'items', foreignKey: 'transacao', targetKey: 'transacao'})
 
+    
+	  this.MovItem.belongsTo(this.MovCab, {as: 'movCab', foreignKey: 'transacao', targetKey: 'transacao'})
 	  this.MovItem.belongsTo(this.Produto, {as: 'produto', foreignKey: 'codprod', targetKey: 'codprod'})
 	  this.MovItem.belongsTo(this.Local, {as: 'orig', foreignKey: 'codloc1', targetKey: 'codloc'})
 	  this.MovItem.belongsTo(this.Local, {as: 'dest', foreignKey: 'codloc2', targetKey: 'codloc'})

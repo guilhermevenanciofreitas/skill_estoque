@@ -11,4 +11,8 @@ export const Search = {
         return (await new Service().Post("search/produto", {search}))?.data
     },
 
+    tipoEntradaSaida: async (search) => {
+        return (await new Service().Post("search/tipo-entrada-saida", {search}))?.data
+    },
+
 }

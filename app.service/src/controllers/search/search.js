@@ -80,4 +80,37 @@ export class SearchController {
         //});
     }
 
+    tipoEntradaSaida = async (req, res) => {
+        //Authorization.verify(req, res).then(async ({company}) => {
+            try {
+
+                const db = new AppContext()
+
+                const where = []
+
+                where.push({
+                    [Sequelize.Op.or]: [
+                        {'$descricao$': {[Sequelize.Op.like]: `%${req.body?.search.replace(' ', "%").toUpperCase()}%`}},
+                    ],
+                })
+
+                const tipoEntSai = await db.TipoEntSai.findAll({
+                    attributes: ['codentsai', 'descricao'],
+                    where,
+                    order: [
+                        ['descricao', 'asc']
+                    ],
+                    limit: 20
+                })
+
+                res.status(200).json(tipoEntSai)
+
+            } catch (error) {
+                Exception.error(res, error)
+            }
+        //}).catch((error) => {
+        //    //Exception.unauthorized(res, error);
+        //});
+    }
+
 }

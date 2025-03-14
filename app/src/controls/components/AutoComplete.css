@@ -84,12 +84,12 @@
     -webkit-animation-name: rotate;
   }
 
-.autocomplete {
+.autocomplete {  
   width: inherit;
-    z-index: 1052;
-    top: 50px;
-    width: 100%;
-    position: absolute;
+  z-index: 1052;
+  top: 50px;
+  width: 100%;
+  position: absolute;
 }
 
 .autocomplete-items {
