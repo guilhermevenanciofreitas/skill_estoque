@@ -56,11 +56,16 @@ export class RelatorioMovimentacao extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.produto?.codprod, name: 'Código', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => row.produto?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.qtde), name: 'Qtde', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.punit), name: 'Preço Un.', minWidth: '120px', maxWidth: '120px', right: true},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(row.qtde) * parseFloat(row.punit)), name: 'Total', minWidth: '120px', maxWidth: '120px', right: true},
+    { selector: (row) => row.movCab?.transacao, name: 'Cod.ID', minWidth: '100px', maxWidth: '100px', style: {padding: '0px'}},
+    { selector: (row) => row.movCab?.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', minWidth: '90px', maxWidth: '90px', style: {padding: '0px'}},
+    { selector: (row) => row.produto?.codprod, name: 'Código', center: true, minWidth: '100px', maxWidth: '100px', style: {padding: '0px'}},
+    { selector: (row) => row.produto?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px', style: {padding: '0px'}},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.qtde), name: 'Qtde', minWidth: '100px', maxWidth: '100px', right: true, style: {padding: '0px'}},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.punit), name: 'Preço Un.', minWidth: '100px', maxWidth: '100px', right: true, style: {padding: '0px'}},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(row.qtde) * parseFloat(row.punit)), name: 'Total', minWidth: '100px', maxWidth: '100px', right: true, style: {padding: '0px'}},
+    //{ selector: (row) => row.movCab?.parceiro?.nome, name: 'Parceiro', minWidth: '250px', maxWidth: '250px', style: {padding: '0px'}},
+    { selector: (row) => row.orig?.descricao, name: 'Origem', minWidth: '220px', maxWidth: '220px', style: {paddingLeft: '15px'}},
+    { selector: (row) => row.dest?.descricao, name: 'Destino', minWidth: '220px', maxWidth: '220px', style: {paddingLeft: '15px'}},
   ]
 
   render = () => {

@@ -11,7 +11,7 @@ export class RelatorioProdutoController {
 
         const db = new AppContext()
 
-        const produtos = await db.Produto.findAll({
+        const produtos = await db.Produto.findAndCountAll({
           attributes: ['codprod', 'descricao', 'unidade', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total']],
           include: [
             {model: db.Estoque, as: 'estoques', attributes: ['codloc', 'saldo'], include: [
@@ -20,12 +20,12 @@ export class RelatorioProdutoController {
           ],
           group: ['produto.codprod', 'produto.descricao', 'produto.unidade', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.local.id', 'estoques.local.codloc', 'estoques.local.descricao'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          order: [['descricao', 'ASC']]
+          order: [[{model: db.Produto, as: 'produto', attributes: ['descricao']}], ['descricao', 'ASC']]
         })
 
         res.status(200).json({
           response: {
-            rows: produtos
+            rows: produtos.rows
           }
         })
 

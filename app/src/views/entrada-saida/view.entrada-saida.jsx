@@ -20,15 +20,20 @@ class ViewEntradaSaida extends React.Component {
     viewModal = React.createRef()
 
     novaEntradaSaida = async (entradaSaida) => {
+
         if (this.state) for (const prop of Object.getOwnPropertyNames(this.state)) delete this.state[prop]
         this.setState({...entradaSaida})
 
         await new Service().Post('entrada-saida/locais').then((result) => this.setState({locais: result.data}))
 
         return this.viewModal.current.show()
+
     }
 
     editarEntradaSaida = async (transacao) => {
+
+        if (this.state) for (const prop of Object.getOwnPropertyNames(this.state)) delete this.state[prop]
+
         Loading.Show();
 
         await new Service().Post('entrada-saida/locais').then((result) => this.setState({locais: result.data}))
@@ -80,8 +85,6 @@ class ViewEntradaSaida extends React.Component {
 
             movCab.items = movItems
 
-            console.log(movCab)
-
             const errors = []
             
             //if (_.isEmpty(produto.unidade)) {
@@ -106,6 +109,16 @@ class ViewEntradaSaida extends React.Component {
     
     onSalvarItem = () => {
 
+        if (this.state?.tipoEntSai?.tipo == 'E' && _.isEmpty(this.state?.dest?.codloc) && !_.isEmpty(this.state?.orig?.codloc)) {
+            Swal.fire({title: '', text: 'Para ENTRADA deve ser informado apenas o DESTINO!', icon: 'warning', confirmButtonText: 'OK'})
+            return
+        }
+
+        if (this.state?.tipoEntSai?.tipo == 'S' && _.isEmpty(this.state?.orig?.codloc) && !_.isEmpty(this.state?.dest?.codloc)) {
+            Swal.fire({title: '', text: 'Para SAÍDA deve ser informado apenas a ORIGEM!', icon: 'warning', confirmButtonText: 'OK'})
+            return
+        }
+
         let items = this.state?.items || []
 
         const item = {
@@ -113,8 +126,8 @@ class ViewEntradaSaida extends React.Component {
             produto: this.state.produto,
             qtde: this.state.qtde ?? 0,
             punit: this.state.punit ?? 0,
-            orig: this.state.orig,
-            dest: this.state.dest
+            orig: this.state?.orig?.codloc == '' ? null : this.state?.orig,
+            dest: this.state?.dest?.codloc == '' ? null : this.state?.dest
         }
 
         if (!this.state?.index)
@@ -374,7 +387,14 @@ class ViewEntradaSaida extends React.Component {
                                             <Col>
                                                 <div className='form-control'>
                                                     <label className="textfield-filled">
-                                                        <select value={this.state?.orig?.codloc} onChange={(event) => this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
+                                                        <select value={this.state?.orig?.codloc} onChange={(event) => {
+                                                            if (this.state?.tipoEntSai?.tipo == 'E') {
+                                                                Swal.fire({title: '', text: 'Para ENTRADA deve ser informado apenas o DESTINO!', icon: 'warning', confirmButtonText: 'OK'})
+                                                                this.setState({orig: {codloc: ''}})
+                                                                return
+                                                            }
+                                                            this.setState({orig: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})
+                                                        }} >
                                                             <option value="">[Selecione]</option>
                                                             {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                         </select>
@@ -385,7 +405,14 @@ class ViewEntradaSaida extends React.Component {
                                             <Col>
                                                 <div className='form-control'>
                                                     <label className="textfield-filled">
-                                                        <select value={this.state?.dest?.codloc} onChange={(event) => this.setState({dest: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})} >
+                                                        <select value={this.state?.dest?.codloc} onChange={(event) => {
+                                                            if (this.state?.tipoEntSai?.tipo == 'S') {
+                                                                Swal.fire({title: '', text: 'Para SAÍDA deve ser informado apenas a ORIGEM!', icon: 'warning', confirmButtonText: 'OK'})
+                                                                this.setState({dest: {codloc: ''}})
+                                                                return
+                                                            }
+                                                            this.setState({dest: {codloc: event.target.value, descricao: event.target.options[event.target.selectedIndex].text}})
+                                                        }} >
                                                             <option value="">[Selecione]</option>
                                                             {_.map(this.state?.locais, (c) => <option value={c.codloc}>{c.descricao}</option>)}
                                                         </select>

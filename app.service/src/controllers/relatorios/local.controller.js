@@ -11,7 +11,7 @@ export class RelatorioLocalController {
 
         const db = new AppContext()
 
-        const locais = await db.Local.findAll({
+        const locais = await db.Local.findAndCountAll({
           attributes: ['codloc', 'descricao', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total']], include: [
             {model: db.Estoque, as: 'estoques', attributes: ['codloc', 'saldo'], include: [
               {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
@@ -19,12 +19,12 @@ export class RelatorioLocalController {
           ],
           group: ['local.codloc', 'local.descricao', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.produto.id', 'estoques.produto.codprod', 'estoques.produto.descricao'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          order: [['descricao', 'asc']]
+          order: [['descricao', 'asc'], [{model: db.Estoque, as: 'estoques'}, {model: db.Produto, as: 'produto'}, 'descricao']]
         })
 
         res.status(200).json({
           response: {
-            rows: locais
+            rows: locais.rows
           }
         })
 

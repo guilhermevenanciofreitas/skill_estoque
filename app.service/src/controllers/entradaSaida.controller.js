@@ -239,13 +239,19 @@ export class EntradaSaidaController {
     
     for (const item of movItems) {
 
+      console.log(item.dataValues)
+
       const fator = parseFloat(item.qtde) * multiplicador
 
       if (movCab.tipoEntSai.tipo === 'E') {
 
+        if (!item.dest) {
+          item.dest = item.orig
+        }
+
         let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction })
 
-        const estoque = parseFloat(estoqueDest.saldo)
+        const estoque = parseFloat(estoqueDest?.saldo || 0)
 
         if (estoqueDest) {
           await db.Estoque.update(
@@ -259,10 +265,14 @@ export class EntradaSaidaController {
           )
         }
       } else if (movCab.tipoEntSai.tipo === 'S') {
-      
+
+        if (!item.orig) {
+          item.orig = item.dest
+        }
+
         let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction })
 
-        const estoque = parseFloat(estoqueOrig.saldo)
+        const estoque = parseFloat(estoqueOrig?.saldo || 0)
 
         if (estoqueOrig) {
           await db.Estoque.update(
@@ -278,13 +288,13 @@ export class EntradaSaidaController {
       
         if (estoqueOrig) {
           await db.Estoque.update(
-            { saldo: parseFloat(estoqueOrig.saldo) - fator },
+            { saldo: parseFloat(estoqueOrig?.saldo || 0) - fator },
             { where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction }
           )
         }
         if (estoqueDest) {
           await db.Estoque.update(
-            { saldo: parseFloat(estoqueDest.saldo) + fator },
+            { saldo: parseFloat(estoqueDest?.saldo || 0) + fator },
             { where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction }
           )
         } else {

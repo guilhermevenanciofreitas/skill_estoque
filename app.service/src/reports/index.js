@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 
 export class Report {
 
-  static generate = async ({report, title, data}) => {
+  static generate = async ({report, title, data, landscape = false}) => {
     
     const options = {
       title,
@@ -52,6 +52,7 @@ export class Report {
 
         const pdfBase64 = await page.pdf({
             format: "A4",
+            landscape,
             displayHeaderFooter: true,
             headerTemplate: headerTemplate,
             /*footerTemplate: `

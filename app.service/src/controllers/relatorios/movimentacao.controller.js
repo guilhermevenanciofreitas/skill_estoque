@@ -23,11 +23,15 @@ export class RelatorioMovimentacaoController {
           where.push({'$movItem.codprod$': req.body.produto?.codprod})
         }
 
-        const items = await db.MovItem.findAll({
+        const items = await db.MovItem.findAndCountAll({
           attributes: ['codprod', 'punit', 'qtde'],
           include: [
-            {model: db.MovCab, as: 'movCab', attributes: []},
-            {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
+            {model: db.MovCab, as: 'movCab', attributes: ['transacao', 'emissao'], include: [
+              {model: db.Parceiro, as: 'parceiro', attributes: ['nome']}
+            ]},
+            {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
+            {model: db.Local, as: 'orig', attributes: ['descricao']},
+            {model: db.Local, as: 'dest', attributes: ['descricao']}
           ],
           where,
           order: [[{model: db.Produto, as: 'produto'}, 'descricao', 'ASC']]
@@ -35,7 +39,7 @@ export class RelatorioMovimentacaoController {
 
         res.status(200).json({
           response: {
-            rows: items
+            rows: items.rows, count: items.count
           }
         })
 
@@ -68,8 +72,12 @@ export class RelatorioMovimentacaoController {
         const items = await db.MovItem.findAll({
           attributes: ['codprod', 'punit', 'qtde'],
           include: [
-            {model: db.MovCab, as: 'movCab', attributes: []},
-            {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']}
+            {model: db.MovCab, as: 'movCab', attributes: ['transacao', 'emissao'], include: [
+              {model: db.Parceiro, as: 'parceiro', attributes: ['nome']}
+            ]},
+            {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
+            {model: db.Local, as: 'orig', attributes: ['descricao']},
+            {model: db.Local, as: 'dest', attributes: ['descricao']}
           ],
           where,
           order: [[{model: db.Produto, as: 'produto'}, 'descricao', 'ASC']]
@@ -78,6 +86,7 @@ export class RelatorioMovimentacaoController {
         const report = await Report.generate({
           report: 'movimentacao.html',
           title: 'Relatório de movimentação',
+          landscape: true,
           data: {
             items: items
           }
