@@ -26,6 +26,7 @@ import ptBR from 'rsuite/locales/pt_BR';
 import { IntlProvider } from 'react-intl';
 import { RelatorioLocal } from './views/relatorios/index.local';
 import { RelatorioMovimentacao } from './views/relatorios/index.movimentacao';
+import { RelatorioResumo } from './views/relatorios/index.resumo';
 
 export class Loading extends React.Component {
 
@@ -84,6 +85,7 @@ const App = () => {
               
               {/*Relatorios*/}
               <Route path='relatorios/movimentacao' element={<RelatorioMovimentacao />} />
+              <Route path='relatorios/resumo' element={<RelatorioResumo />} />
               <Route path='relatorios/produto' element={<RelatorioProduto />} />
               <Route path='relatorios/local' element={<RelatorioLocal />} />
 

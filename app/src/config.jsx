@@ -56,6 +56,11 @@ export const appNavs = [
         to: '/relatorios/movimentacao'
       },
       {
+        eventKey: 'relatorios-resumo',
+        title: 'Resumo',
+        to: '/relatorios/resumo'
+      },
+      {
         eventKey: 'relatorios-produto',
         title: 'Produtos',
         to: '/relatorios/produto'

@@ -11,16 +11,20 @@
     "axios": "^1.7.9",
     "react": "^18.3.1",
     "react-art": "17.0.2",
+    "react-datepicker": "^8.2.1",
     "react-dom": "^18.3.1",
     "react-native": "^0.78.0",
+    "react-native-date-picker": "^5.0.10",
     "react-native-gesture-handler": "^2.24.0",
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.0",
     "react-native-web": "^0.16.1",
+    "react-native-web-ui-components": "^6.1.5",
     "react-navigation": "^5.0.0",
-    "react-scripts": "4.0.3",
-    "react-spring": "^9.7.5"
+    "react-scripts": "^5.0.1",
+    "react-spring": "^9.7.5",
+    "yarn": "^1.22.22"
   },
   "scripts": {
     "start": "react-scripts start",

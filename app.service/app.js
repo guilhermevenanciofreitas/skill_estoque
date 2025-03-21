@@ -13,6 +13,7 @@ import { SearchRoute } from './src/routes/search.js'
 import { RelatorioProdutoRoute } from './src/routes/relatorios/produto.route.js'
 import { RelatorioLocalRoute } from './src/routes/relatorios/local.route.js'
 import { RelatorioMovimentacaoRoute } from './src/routes/relatorios/movimentacao.route.js'
+import { RelatorioResumoRoute } from './src/routes/relatorios/resumo.route.js'
 
 export class App {
 
@@ -51,6 +52,7 @@ export class App {
 
     //Relatorios
     this.express.use('/api/relatorios/movimentacao', new RelatorioMovimentacaoRoute().router)
+    this.express.use('/api/relatorios/resumo', new RelatorioResumoRoute().router)
     this.express.use('/api/relatorios/produto', new RelatorioProdutoRoute().router)
     this.express.use('/api/relatorios/local', new RelatorioLocalRoute().router)
 

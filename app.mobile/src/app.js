@@ -7,6 +7,7 @@ import { ProdutoList } from './views/cadastros/produto';
 
 import { RelatorioProdutoList } from './views/relatorios/produto';
 import { RelatorioLocalList } from './views/relatorios/local';
+import { RelatorioResumoList } from './views/relatorios/resumo';
 
 const App = () => {
 
@@ -52,6 +53,8 @@ const App = () => {
         return <ProdutoList />;
       case "Produto":
         return <RelatorioProdutoList />;
+      case "Resumo":
+        return <RelatorioResumoList />;
       case "Local":
         return <RelatorioLocalList />;
       default:
@@ -86,6 +89,9 @@ const App = () => {
           </TouchableOpacity>
           {relatoriosExpanded && (
             <View style={styles.subMenu}>
+              <TouchableOpacity onPress={() => handleMenuItemClick('Resumo')} style={styles.subMenuItem}>
+                <Text style={styles.subMenuText}>📊 Resumo</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => handleMenuItemClick('Produto')} style={styles.subMenuItem}>
                 <Text style={styles.subMenuText}>📊 Produtos</Text>
               </TouchableOpacity>
