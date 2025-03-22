@@ -13,7 +13,7 @@ const App = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerAnimation] = useState(new Animated.Value(-300));
-  const [selectedScreen, setSelectedScreen] = useState('Produtos');
+  const [selectedScreen, setSelectedScreen] = useState('Resumo');
 
   const [cadastrosExpanded, setCadastrosExpanded] = useState(false);
   const [relatoriosExpanded, setRelatoriosExpanded] = useState(false);
@@ -58,7 +58,7 @@ const App = () => {
       case "Local":
         return <RelatorioLocalList />;
       default:
-        return <Text style={styles.bodyText}>Conteúdo de {selectedScreen}</Text>;
+        return <Text style={styles.bodyText}></Text>;
     }
   };
 
@@ -70,8 +70,8 @@ const App = () => {
 
       <Animated.View style={[styles.drawer, { transform: [{ translateX: drawerAnimation }] }]}>
         <View style={styles.drawerContent}>
-          
-          {/* Cadastros */}
+        
+          {/* Cadastros 
           <TouchableOpacity onPress={toggleCadastros} style={styles.menuItem}>
             <Text style={styles.menuText}>{cadastrosExpanded ? "🔽" : "➡"} Cadastros</Text>
           </TouchableOpacity>
@@ -82,24 +82,20 @@ const App = () => {
               </TouchableOpacity>
             </View>
           )}
+          */}
 
-          {/* Relatórios */}
-          <TouchableOpacity onPress={toggleRelatorios} style={styles.menuItem}>
-            <Text style={styles.menuText}>{relatoriosExpanded ? "🔽" : "➡"} Relatórios</Text>
-          </TouchableOpacity>
-          {relatoriosExpanded && (
-            <View style={styles.subMenu}>
-              <TouchableOpacity onPress={() => handleMenuItemClick('Resumo')} style={styles.subMenuItem}>
-                <Text style={styles.subMenuText}>📊 Resumo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleMenuItemClick('Produto')} style={styles.subMenuItem}>
-                <Text style={styles.subMenuText}>📊 Produtos</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleMenuItemClick('Local')} style={styles.subMenuItem}>
-                <Text style={styles.subMenuText}>📍 Locais</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View style={styles.subMenu}>
+            <TouchableOpacity onPress={() => handleMenuItemClick('Resumo')} style={styles.subMenuItem}>
+              <Text style={styles.subMenuText}>📊 Resumo entrada/saída</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleMenuItemClick('Produto')} style={styles.subMenuItem}>
+              <Text style={styles.subMenuText}>📦 Produtos</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleMenuItemClick('Local')} style={styles.subMenuItem}>
+              <Text style={styles.subMenuText}>📍 Locais</Text>
+            </TouchableOpacity>
+          </View>
+
         </View>
       </Animated.View>
 
@@ -109,7 +105,7 @@ const App = () => {
           <TouchableOpacity onPress={toggleDrawer}>
             <Text style={styles.menuButton}>☰</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>{selectedScreen}</Text>
+          <Text style={styles.title}>{selectedScreen || 'Home'}</Text>
         </View>
         <View style={styles.body}>{renderContent()}</View>
       </View>

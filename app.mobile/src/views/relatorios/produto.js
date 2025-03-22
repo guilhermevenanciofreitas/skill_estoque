@@ -44,7 +44,7 @@ export const RelatorioProdutoList = () => {
             <View style={styles.productInfo}>
               <Text>{item.codprod} - {item.descricao}</Text>
             </View>
-            <Text style={styles.saldo}>Saldo: {item.saldo_total.toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.saldo}>{item.saldo_total.toFixed(2).replace('.', ',')}</Text>
           </View>
         </TouchableOpacity>
 
@@ -70,7 +70,7 @@ export const RelatorioProdutoList = () => {
     <View style={styles.container}>
       {/* Botão de Recarregar */}
       <TouchableOpacity style={styles.refreshButton} onPress={fetchData} disabled={loading}>
-        <Text style={styles.refreshButtonText}>{loading ? 'Atualizando...' : 'Recarregar'}</Text>
+        <Text style={styles.refreshButtonText}>{loading ? 'Buscando...' : 'Buscar'}</Text>
       </TouchableOpacity>
 
       {/* ScrollView para Navegador */}

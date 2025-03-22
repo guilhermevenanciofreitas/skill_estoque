@@ -9,7 +9,9 @@ const DateRangePicker = ({startDate = new Date(), endDate = new Date(), onChange
   return (
     <View style={{ padding: 20 }}>
         <>
+          Data inicial
           <DateTimePicker value={startDate} onChange={(event) => onChange(event.target.value, endDate)} />
+          Data final
           <DateTimePicker value={endDate} onChange={(event) => onChange(startDate, event.target.value)} />
         </>
     </View>

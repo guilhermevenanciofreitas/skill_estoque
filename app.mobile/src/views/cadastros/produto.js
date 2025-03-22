@@ -70,7 +70,7 @@ export const ProdutoList = () => {
     <View style={styles.container}>
       {/* Botão de Recarregar */}
       <TouchableOpacity style={styles.refreshButton} onPress={fetchData} disabled={loading}>
-        <Text style={styles.refreshButtonText}>{loading ? 'Atualizando...' : 'Recarregar'}</Text>
+        <Text style={styles.refreshButtonText}>{loading ? 'Buscando...' : 'Buscar'}</Text>
       </TouchableOpacity>
 
       {/* ScrollView para Navegador */}

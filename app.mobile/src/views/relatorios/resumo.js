@@ -48,7 +48,7 @@ export const RelatorioResumoList = () => {
             <View style={styles.productInfo}>
               <Text>{item.codentsai} - {item.operacao}</Text>
             </View>
-            <Text style={styles.saldo}>Valor: {item.valor.toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.saldo}>{new Intl.NumberFormat('pt-BR', {style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2}).format(parseFloat(item.valor))}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -65,7 +65,7 @@ export const RelatorioResumoList = () => {
 
       {/* Botão de Recarregar */}
       <TouchableOpacity style={styles.refreshButton} onPress={fetchData} disabled={loading}>
-        <Text style={styles.refreshButtonText}>{loading ? 'Atualizando...' : 'Recarregar'}</Text>
+        <Text style={styles.refreshButtonText}>{loading ? 'Buscando...' : 'Buscar'}</Text>
       </TouchableOpacity>
 
       {/* ScrollView para Navegador */}

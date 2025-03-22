@@ -4,7 +4,7 @@ export class Service {
 
     Post = async (url, data, headers) => {
 
-        const env = 'http://vps53636.publiccloud.com.br:1000/api/'
+        const env = 'https://vps53636.publiccloud.com.br:1000/api/'
 
         let config = {};
 
