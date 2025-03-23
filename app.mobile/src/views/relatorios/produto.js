@@ -44,7 +44,7 @@ export const RelatorioProdutoList = () => {
             <View style={styles.productInfo}>
               <Text>{item.codprod} - {item.descricao}</Text>
             </View>
-            <Text style={styles.saldo}>{item.saldo_total.toFixed(2).replace('.', ',')}</Text>
+            <Text>{item.saldo_total.toFixed(2).replace('.', ',')}</Text>
           </View>
         </TouchableOpacity>
 
@@ -83,6 +83,28 @@ export const RelatorioProdutoList = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
+
+        <View style={styles.itemContainerTitle}>
+          <TouchableOpacity>
+            <View>
+              <View>
+                <Text>(Clique no item para exibir o estoque por local)</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.itemContainerTitle}>
+          <TouchableOpacity>
+            <View style={styles.itemTitle}>
+              <View style={styles.productInfo}>
+                <Text style={styles.saldo}>DESCRIÇÃO</Text>
+              </View>
+              <Text style={styles.saldo}>ESTOQUE</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        
         <FlatList
           data={produtos}
           renderItem={renderItem}
@@ -109,12 +131,26 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
   },
+  itemContainerTitle: {
+    padding: 10,
+  },
   itemContainer: {
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  itemTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   itemHeader: {
     flexDirection: 'row',

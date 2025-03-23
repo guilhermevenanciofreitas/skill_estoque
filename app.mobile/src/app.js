@@ -13,7 +13,7 @@ const App = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerAnimation] = useState(new Animated.Value(-300));
-  const [selectedScreen, setSelectedScreen] = useState('Resumo');
+  const [selectedScreen, setSelectedScreen] = useState('📊 Resumo entradas/saídas');
 
   const [cadastrosExpanded, setCadastrosExpanded] = useState(false);
   const [relatoriosExpanded, setRelatoriosExpanded] = useState(false);
@@ -51,11 +51,11 @@ const App = () => {
     switch (selectedScreen) {
       case "Produtos":
         return <ProdutoList />;
-      case "Produto":
+      case "📦 Produto":
         return <RelatorioProdutoList />;
-      case "Resumo":
+      case "📊 Resumo entradas/saídas":
         return <RelatorioResumoList />;
-      case "Local":
+      case "📍 Local":
         return <RelatorioLocalList />;
       default:
         return <Text style={styles.bodyText}></Text>;
@@ -85,13 +85,13 @@ const App = () => {
           */}
 
           <View style={styles.subMenu}>
-            <TouchableOpacity onPress={() => handleMenuItemClick('Resumo')} style={styles.subMenuItem}>
-              <Text style={styles.subMenuText}>📊 Resumo entrada/saída</Text>
+            <TouchableOpacity onPress={() => handleMenuItemClick('📊 Resumo entradas/saídas')} style={styles.subMenuItem}>
+              <Text style={styles.subMenuText}>📊 Resumo entradas/saídas</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleMenuItemClick('Produto')} style={styles.subMenuItem}>
+            <TouchableOpacity onPress={() => handleMenuItemClick('📦 Produto')} style={styles.subMenuItem}>
               <Text style={styles.subMenuText}>📦 Produtos</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleMenuItemClick('Local')} style={styles.subMenuItem}>
+            <TouchableOpacity onPress={() => handleMenuItemClick('📍 Local')} style={styles.subMenuItem}>
               <Text style={styles.subMenuText}>📍 Locais</Text>
             </TouchableOpacity>
           </View>
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 280,
+    width: 300,
     backgroundColor: '#ffffff',
     paddingTop: 50,
     zIndex: 2,

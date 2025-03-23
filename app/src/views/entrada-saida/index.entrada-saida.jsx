@@ -74,15 +74,16 @@ class EntradaSaida extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.transacao, name: 'Cod. ID', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai?.tipo, name: 'Tipo', maxWidth: '100px'},
-    { selector: (row) => row.tipoEntSai?.descricao, name: 'Descrição do tipo', maxWidth: '220px'},
-    { selector: (row) => row.parceiro?.nome, name: 'Parceiro', maxWidth: '280px'},
-    { selector: (row) => row.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', maxWidth: '120px'},
-    { selector: (row) => row.dtmov ? dayjs(row.dtmov).format('DD/MM/YYYY') : '', name: 'Entrada', maxWidth: '120px'},
-    { selector: (row) => row.numdoc, name: 'Num.docto', maxWidth: '120px'},
+    { selector: (row) => row.transacao, name: 'Cod. ID', minWidth: '60px', maxWidth: '60px'},
+    { selector: (row) => row.tipoEntSai?.tipo, name: 'Tipo', minWidth: '40px', maxWidth: '40px'},
+    { selector: (row) => row.tipoEntSai?.descricao, name: 'Descrição do tipo', minWidth: '220px', maxWidth: '220px'},
+    //{ selector: (row) => `${row.tipoEntSai?.tipo} - ${row.tipoEntSai?.descricao}`, name: 'Tipo', maxWidth: '220px'},
+    { selector: (row) => row.parceiro?.nome, name: 'Parceiro', minWidth: '220px', maxWidth: '220px'},
+    { selector: (row) => row.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', minWidth: '90px', maxWidth: '90px'},
+    { selector: (row) => row.dtmov ? dayjs(row.dtmov).format('DD/MM/YYYY') : '', name: 'Entrada', minWidth: '90px', maxWidth: '90px'},
+    { selector: (row) => row.numdoc, name: 'Num.docto', minWidth: '70px', maxWidth: '70px'},
     { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.total), name: 'Valor', maxWidth: '120px', right: true},
-    { selector: (row) => row.obs, name: 'Obs.', maxWidth: '300px'},
+    { selector: (row) => row.obs, name: 'Obs.'},
   ]
 
   render = () => {

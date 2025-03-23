@@ -82,6 +82,26 @@ export const RelatorioLocalList = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
+        <View style={{padding: 10}}>
+          <TouchableOpacity>
+            <View>
+              <View>
+                <Text>(Clique no item para exibir o estoque por produto)</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={{padding: 10}}>
+          <TouchableOpacity>
+            <View style={styles.itemTitle}>
+              <View style={styles.productInfo}>
+                <Text style={styles.saldo}>DESCRIÇÃO</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        
         <FlatList
           data={locais}
           renderItem={renderItem}

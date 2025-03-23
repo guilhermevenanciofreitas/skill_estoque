@@ -7,8 +7,8 @@ import DateRangePicker from '../../controls/DateRangePicker';
 
 export const RelatorioResumoList = () => {
   
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
 
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,17 @@ export const RelatorioResumoList = () => {
 
   // Função para buscar os dados
   const fetchData = async () => {
+
+    if (!startDate) {
+      alert("Informe a data inicial!")
+      return
+    }
+
+    if (!endDate) {
+      alert("Informe a data final!")
+      return
+    }
+
     setLoading(true);
     try {
       const result = await new Service().Post('relatorios/resumo/lista', {inicio: startDate, final: endDate});
@@ -48,7 +59,7 @@ export const RelatorioResumoList = () => {
             <View style={styles.productInfo}>
               <Text>{item.codentsai} - {item.operacao}</Text>
             </View>
-            <Text style={styles.saldo}>{new Intl.NumberFormat('pt-BR', {style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2}).format(parseFloat(item.valor))}</Text>
+            <Text>{new Intl.NumberFormat('pt-BR', {style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2}).format(parseFloat(item.valor))}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -78,6 +89,18 @@ export const RelatorioResumoList = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
+
+        <View style={styles.itemContainerTitle}>
+          <TouchableOpacity>
+            <View style={styles.itemTitle}>
+              <View style={styles.productInfo}>
+                <Text style={styles.saldo}>OPERAÇÃO</Text>
+              </View>
+              <Text style={styles.saldo}>VALOR</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         <FlatList
           data={produtos}
           renderItem={renderItem}
@@ -105,6 +128,9 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
   },
+  itemContainerTitle: {
+    padding: 10,
+  },
   itemContainer: {
     marginBottom: 10,
     borderWidth: 1,
@@ -113,9 +139,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   itemHeader: {
+
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    alignItems: 'center',
+  },
+  itemTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   productInfo: {

@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, Button, Platform, TextInput } from 'react-native';
+import { View, Text, Button, Platform, TextInput, StyleSheet } from 'react-native';
 import DateTimePicker from './DateTime';
+import dayjs from 'dayjs'
 
-const DateRangePicker = ({startDate = new Date(), endDate = new Date(), onChange}) => {
-  //const [startDate, setStartDate] = useState(new Date());
-  //const [endDate, setEndDate] = useState(new Date());
+const DateRangePicker = ({startDate = undefined, endDate = undefined, onChange}) => {
 
   return (
     <View style={{ padding: 20 }}>
         <>
-          Data inicial
+          <Text style={styles.text}>Data inicial</Text>
           <DateTimePicker value={startDate} onChange={(event) => onChange(event.target.value, endDate)} />
-          Data final
+          <Text style={styles.text}>Data final</Text>
           <DateTimePicker value={endDate} onChange={(event) => onChange(startDate, event.target.value)} />
         </>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  text: {
+    fontWeight: 'bold',
+  },
+})
 
 export default DateRangePicker;
