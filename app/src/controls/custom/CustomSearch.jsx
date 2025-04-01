@@ -24,8 +24,8 @@ const ControlSearch = ({placeholder, fields, loading, value, defaultPicker, onCh
           </InputGroup.Addon>
 
           <Input ref={inputRef} value={input} appearance={'default'} placeholder={`Pesquise por ${(picker ? _.filter(fields, (c) => c.value == picker)[0]?.label : _.map(_.filter(fields, (c) => c.value), (c) => c.label).join(', ')).toLowerCase()}`} autoFocus onChange={(input) => {
-            setInput(input)
-            onChange({picker, input})
+            setInput(input.toUpperCase())
+            onChange({picker, input: input.toUpperCase()})
           }} />
 
           <InputGroup.Button type='submit' disabled={loading} >

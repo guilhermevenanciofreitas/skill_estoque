@@ -9,6 +9,18 @@ export class RelatorioProdutoController {
     //await Authorization.verify(req, res).then(async ({company}) => {
       try {
 
+        const where = []
+
+        const search = req.body.search
+
+        if (search?.input) {
+
+          if (search?.picker == 'descricao') {
+            where.push({'descricao': {[Sequelize.Op.like]: `%${search.input.replace(' ', "%")}%`}})
+          }
+
+        }
+
         const db = new AppContext()
 
         const produtos = await db.Produto.findAndCountAll({
@@ -20,7 +32,8 @@ export class RelatorioProdutoController {
           ],
           group: ['produto.codprod', 'produto.descricao', 'produto.unidade', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.local.id', 'estoques.local.codloc', 'estoques.local.descricao'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          order: [['descricao', 'ASC'], [{ model: db.Estoque, as: 'estoques' }, { model: db.Local, as: 'local' }, 'descricao', 'ASC']]
+          order: [['descricao', 'ASC'], [{ model: db.Estoque, as: 'estoques' }, { model: db.Local, as: 'local' }, 'descricao', 'ASC']],
+          where
         })
 
         res.status(200).json({

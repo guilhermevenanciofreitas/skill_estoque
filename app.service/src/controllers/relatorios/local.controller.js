@@ -9,6 +9,18 @@ export class RelatorioLocalController {
     //await Authorization.verify(req, res).then(async ({company}) => {
       try {
 
+        const where = []
+        
+        const search = req.body.search
+
+        if (search?.input) {
+
+          if (search?.picker == 'descricao') {
+            where.push({'descricao': {[Sequelize.Op.like]: `%${search.input.replace(' ', "%")}%`}})
+          }
+
+        }
+
         const db = new AppContext()
 
         const locais = await db.Local.findAndCountAll({
@@ -19,7 +31,8 @@ export class RelatorioLocalController {
           ],
           group: ['local.codloc', 'local.descricao', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.produto.id', 'estoques.produto.codprod', 'estoques.produto.descricao'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          order: [['descricao', 'asc'], [{model: db.Estoque, as: 'estoques'}, {model: db.Produto, as: 'produto'}, 'descricao']]
+          order: [['descricao', 'asc'], [{model: db.Estoque, as: 'estoques'}, {model: db.Produto, as: 'produto'}, 'descricao']],
+          where
         })
 
         res.status(200).json({
