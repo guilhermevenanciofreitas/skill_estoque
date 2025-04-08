@@ -3,8 +3,12 @@ import {
   View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, RefreshControl
 } from 'react-native';
 import { Service } from '../../service';
+import { CustomInput } from '../../controls/CustomInput';
 
 export const RelatorioLocalList = () => {
+
+  const [search, setSearch] = useState('')
+
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [locais, setLocais] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +18,7 @@ export const RelatorioLocalList = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await new Service().Post('relatorios/local/lista');
+      const result = await new Service().Post('relatorios/local/lista', {search: {picker: 'descricao', input: search}});
       setLocais(result.data?.response?.rows || []);
     } catch (error) {
       alert('Erro ao carregar os dados: ' + error.message);
@@ -67,6 +71,12 @@ export const RelatorioLocalList = () => {
 
   return (
     <View style={styles.container}>
+
+      <CustomInput label={'Descrição'} value={search} onChangeText={(search) => {
+        setSearch(search.toUpperCase())
+        fetchData()
+      }} />
+      
       {/* Botão de Recarregar */}
       <TouchableOpacity style={styles.refreshButton} onPress={fetchData} disabled={loading}>
         <Text style={styles.refreshButtonText}>{loading ? 'Buscando...' : 'Buscar'}</Text>

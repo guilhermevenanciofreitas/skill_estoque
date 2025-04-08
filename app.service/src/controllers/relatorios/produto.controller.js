@@ -61,6 +61,7 @@ export class RelatorioProdutoController {
           include: [
             {model: db.Estoque, as: 'estoques', attributes: ['saldo']}
           ],
+          where,
           group: ['produto.codprod', 'produto.descricao', 'produto.unidade', 'produto.custo', 'estoques.id', 'estoques.saldo'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
           order: [['descricao', 'ASC']]

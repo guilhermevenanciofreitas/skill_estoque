@@ -3,8 +3,12 @@ import {
   View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, RefreshControl
 } from 'react-native';
 import { Service } from '../../service';
+import { CustomInput } from '../../controls/CustomInput';
 
 export const RelatorioProdutoList = () => {
+
+  const [search, setSearch] = useState('')
+
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +18,8 @@ export const RelatorioProdutoList = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await new Service().Post('relatorios/produto/lista');
+      console.log({search: {picker: 'descricao', input: search}})
+      const result = await new Service().Post('relatorios/produto/lista', {search: {picker: 'descricao', input: search}});
       setProdutos(result.data?.response?.rows || []);
     } catch (error) {
       alert('Erro ao carregar os dados: ' + error.message);
@@ -68,6 +73,12 @@ export const RelatorioProdutoList = () => {
 
   return (
     <View style={styles.container}>
+
+      <CustomInput label={'Descrição'} value={search} onChangeText={(search) => {
+        setSearch(search.toUpperCase())
+        fetchData()
+      }}  />
+
       {/* Botão de Recarregar */}
       <TouchableOpacity style={styles.refreshButton} onPress={fetchData} disabled={loading}>
         <Text style={styles.refreshButtonText}>{loading ? 'Buscando...' : 'Buscar'}</Text>
