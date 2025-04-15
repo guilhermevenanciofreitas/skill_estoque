@@ -199,7 +199,7 @@ export class EntradaSaidaController {
               where: [{transacao: movCab.transacao}]
             })
 
-            await this.atualizarEstoque(-1, movCab.transacao, _.cloneDeep(movItemsAnterior), transaction) // Reverte estoque antigo
+            await this.atualizarEstoque(-1, movCab.transacao, _.cloneDeep(movItemsAnterior), req.body.codemp, transaction) // Reverte estoque antigo
 
             await db.MovItem.destroy({where: [{transacao: movCab.transacao}], transaction})
 
@@ -220,7 +220,7 @@ export class EntradaSaidaController {
 
           }
 
-          await this.atualizarEstoque(1, movCab.transacao, _.cloneDeep(movItems), transaction) // Aplica novo estoque
+          await this.atualizarEstoque(1, movCab.transacao, _.cloneDeep(movItems), req.body.codemp, transaction) // Aplica novo estoque
 
         })
 
@@ -234,7 +234,7 @@ export class EntradaSaidaController {
     //})
   }
 
-  atualizarEstoque = async (multiplicador, transacao, movItems, transaction) => {
+  atualizarEstoque = async (multiplicador, transacao, movItems, codemp, transaction) => {
 
     const db = new AppContext();
 
@@ -252,18 +252,18 @@ export class EntradaSaidaController {
           item.dest = item.orig
         }
 
-        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction })
+        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction })
 
         const estoque = parseFloat(estoqueDest?.saldo || 0)
 
         if (estoqueDest) {
           await db.Estoque.update(
             { saldo: estoque + fator },
-            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction }
+            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction }
           )
         } else {
           await db.Estoque.create(
-            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator },
+            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator, codemp },
             { transaction }
           )
         }
@@ -273,36 +273,36 @@ export class EntradaSaidaController {
           item.orig = item.dest
         }
 
-        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction })
+        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction })
 
         const estoque = parseFloat(estoqueOrig?.saldo || 0)
 
         if (estoqueOrig) {
           await db.Estoque.update(
             { saldo: estoque - fator },
-            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction }
+            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction }
           )
         }
 
       } else if (movCab.tipoEntSai.tipo === 'A') {
 
-        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction })
-        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction })
+        let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction })
+        let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction })
       
         if (estoqueOrig) {
           await db.Estoque.update(
             { saldo: parseFloat(estoqueOrig?.saldo || 0) - fator },
-            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc }, transaction }
+            { where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction }
           )
         }
         if (estoqueDest) {
           await db.Estoque.update(
             { saldo: parseFloat(estoqueDest?.saldo || 0) + fator },
-            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc }, transaction }
+            { where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction }
           )
         } else {
           await db.Estoque.create(
-            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator },
+            { codprod: item.produto.codprod, codloc: item.dest.codloc, saldo: fator, codemp },
             { transaction }
           )
         }

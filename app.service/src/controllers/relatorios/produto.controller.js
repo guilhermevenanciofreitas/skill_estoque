@@ -11,6 +11,8 @@ export class RelatorioProdutoController {
 
         const where = []
 
+        where.push({'$estoques.codemp$': req.body.codemp})
+
         const search = req.body.search
 
         if (search?.input) {
@@ -55,6 +57,10 @@ export class RelatorioProdutoController {
       try {
 
         const db = new AppContext()
+
+        const where = []
+
+        where.push({'$estoques.codemp$': req.body.codemp})
 
         const produtos = await db.Produto.findAll({
           attributes: ['codprod', 'descricao', 'unidade', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total'], 'custo'],

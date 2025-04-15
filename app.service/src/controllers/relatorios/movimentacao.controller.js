@@ -61,6 +61,8 @@ export class RelatorioMovimentacaoController {
 
         const where = []
 
+        where.push({'$movCab.codemp$': req.body.codemp})
+        
         where.push({'$movCab.emissao$': {[db.Sequelize.Op.between]: [req.body.inicio, req.body.final]}})
 
         if (req.body.tipoEntSai?.codentsai) {

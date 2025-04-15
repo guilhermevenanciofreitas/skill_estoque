@@ -11,7 +11,7 @@ export class RelatorioLocalController {
 
         const where = []
         
-        where.push({'codemp': req.body.codemp})
+        where.push({'$estoques.codemp$': req.body.codemp})
 
         const search = req.body.search
 
@@ -57,6 +57,12 @@ export class RelatorioLocalController {
 
         const db = new AppContext()
 
+        const where = []
+
+        where.push({'codloc': req.body[0]})
+
+        where.push({'$estoques.codemp$': req.body.codemp})
+
         const locais = await db.Local.findAll({
           attributes: ['codloc', 'descricao', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total']], include: [
             {model: db.Estoque, as: 'estoques', attributes: ['codloc', 'saldo'], include: [
@@ -65,7 +71,7 @@ export class RelatorioLocalController {
           ],
           group: ['local.codloc', 'local.descricao', 'estoques.id', 'estoques.codloc', 'estoques.saldo', 'estoques.produto.id', 'estoques.produto.codprod', 'estoques.produto.descricao', 'estoques.produto.unidade', 'estoques.produto.custo'],
           having: Sequelize.where(Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), { [Sequelize.Op.gt]: 0 }),
-          where: [{codloc: req.body[0]}],
+          where,
           order: [['descricao', 'asc']]
         })
 

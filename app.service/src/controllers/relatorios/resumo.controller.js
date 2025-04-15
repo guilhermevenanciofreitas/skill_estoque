@@ -28,7 +28,7 @@ export class RelatorioResumoController {
         const resumo = await db.query(`
           select mc.codentsai, es.descricao operacao, sum(mi.qtde * punit) valor
           from skill_estoq_movitem mi
-          left join skill_estoq_movcab mc on mc.transacao = mi.transacao and skill_estoq_movcab.codemp = ${req.body.codemp}
+          left join skill_estoq_movcab mc on mc.transacao = mi.transacao and mc.codemp = ${req.body.codemp}
           left join skill_estoq_tipentsai es on es.codentsai = mc.codentsai
           where mc.emissao between '${req.body.inicio} 00:00:00' and '${req.body.final} 23:59:59'
           group by mc.codentsai, es.descricao
@@ -59,7 +59,7 @@ export class RelatorioResumoController {
         const resumo = await db.query(`
           select mc.codentsai, es.descricao operacao, sum(mi.qtde * punit) valor
           from skill_estoq_movitem mi
-          left join skill_estoq_movcab mc on mc.transacao = mi.transacao
+          left join skill_estoq_movcab mc on mc.transacao = mi.transacao and mc.codemp = ${req.body.codemp}
           left join skill_estoq_tipentsai es on es.codentsai = mc.codentsai
           where mc.emissao between '${req.body.inicio} 00:00:00' and '${req.body.final} 23:59:59'
           group by mc.codentsai, es.descricao
