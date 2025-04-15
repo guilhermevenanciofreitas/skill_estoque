@@ -6,6 +6,7 @@ import NavToggle from './NavToggle';
 import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
+import Company from './Company';
 
 const { getHeight, on } = DOMHelper;
 
@@ -47,9 +48,9 @@ const Frame = (props) => {
         width={expand ? 260 : 56}
         collapsible
       >
-        <Sidenav.Header>
-          <Brand />
-        </Sidenav.Header>
+
+        <Company expand={expand} />
+
         <Sidenav expanded={expand} appearance="subtle" defaultOpenKeys={['2', '3']}>
           <Sidenav.Body style={navBodyStyle}>
             <Nav>

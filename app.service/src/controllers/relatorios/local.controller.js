@@ -11,6 +11,8 @@ export class RelatorioLocalController {
 
         const where = []
         
+        where.push({'codemp': req.body.codemp})
+
         const search = req.body.search
 
         if (search?.input) {

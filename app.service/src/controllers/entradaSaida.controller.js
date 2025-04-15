@@ -80,6 +80,8 @@ export class EntradaSaidaController {
 
         const where = []
 
+        where.push({'codemp': req.body.codemp})
+
         const movCabs = await db.MovCab.findAndCountAll({
           attributes: ['transacao', 'emissao', 'dtmov', 'numdoc', 'total', 'obs'],
           include: [
@@ -165,7 +167,8 @@ export class EntradaSaidaController {
           dtmov: req.body.dtmov,
           numdoc: req.body.numdoc,
           total: req.body.total,
-          obs: req.body.obs
+          obs: req.body.obs,
+          codemp: req.body.codemp
         }
 
         const movItems = req.body.items || []

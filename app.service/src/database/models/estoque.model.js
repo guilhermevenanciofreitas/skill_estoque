@@ -17,4 +17,9 @@ export class Estoque {
     type: Sequelize.DECIMAL
   }
 
+  codemp = {
+    field: 'codemp',
+    type: Sequelize.INTEGER
+  }
+
 }
