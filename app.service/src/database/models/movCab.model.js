@@ -52,4 +52,9 @@ export class MovCab {
     type: Sequelize.STRING,
   }
 
+  codemp = {
+    field: 'codemp',
+    type: Sequelize.INTEGER
+  }
+
 }

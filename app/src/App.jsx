@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, useRoutes } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, useRoutes, Navigate } from 'react-router-dom';
 import { CustomProvider, Loader } from 'rsuite';
 import enGB from 'rsuite/locales/en_GB';
 import Frame from './components/Frame';
@@ -27,6 +27,7 @@ import { IntlProvider } from 'react-intl';
 import { RelatorioLocal } from './views/relatorios/index.local';
 import { RelatorioMovimentacao } from './views/relatorios/index.movimentacao';
 import { RelatorioResumo } from './views/relatorios/index.resumo';
+import { SignIn } from './views/sign-in/SignIn';
 
 export class Loading extends React.Component {
 
@@ -58,6 +59,70 @@ export class Loading extends React.Component {
 
 }
 
+
+export const checkAuthorization = () => {
+
+  const authData = localStorage.getItem("Authorization")
+
+  if (!authData) {
+    return false
+  }
+
+  const { token, lastAcess, expireIn } = JSON.parse(authData);
+
+  return true
+
+  if (!token || !lastAcess || !expireIn) {
+    return false
+  }
+
+  const expirationTime = Number(lastAcess) + Number(expireIn) * 60 * 1000
+
+  if (Date.now() >= expirationTime) {
+    return false
+  } else {
+    return true
+  }
+
+}
+
+const PrivateRoute = ({ component }) => {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(null)
+
+  useEffect(() => {
+
+    let animationFrameId
+
+    const checkAuth = () => {
+
+      const isAuth = checkAuthorization()
+
+      if (!isAuth) {
+        setIsAuthenticated(false)
+      } else {
+        setIsAuthenticated(true)
+        animationFrameId = requestAnimationFrame(checkAuth)
+      }
+    }
+
+    checkAuth()
+
+    return () => cancelAnimationFrame(animationFrameId)
+
+  }, [])
+
+  if (isAuthenticated === null) {
+    return null
+  }
+
+  const redirect = window.location.pathname == '/' ? '' : `?redirect=${window.location.pathname}`
+
+  return isAuthenticated ? component : <Navigate to={`/login${redirect}`} replace />
+
+}
+
+
 const App = () => {
 
   return (
@@ -69,7 +134,9 @@ const App = () => {
             
             {/*<Route path="sign-in" element={<SignInPage />} />*/}
 
-            <Route path="/" element={<Frame navs={appNavs} />}>
+            <Route path="login" element={<SignIn />} />
+
+            <Route path="/" element={<PrivateRoute component={<Frame navs={appNavs} />} />}>
 
               <Route index element={<EntradaSaida />} />
 

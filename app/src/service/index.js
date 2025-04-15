@@ -25,7 +25,7 @@ export class Service {
                 }
             }
 
-            var response = await axios.post(env + url, data || {}, config)
+            var response = await axios.post(env + url, {...data, codemp: authorization.companyId} || {}, config)
 
             if (authorization) {
                 authorization.lastAcess = response.headers['last-acess']
