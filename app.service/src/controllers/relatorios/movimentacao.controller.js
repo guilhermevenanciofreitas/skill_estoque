@@ -87,13 +87,16 @@ export class RelatorioMovimentacaoController {
           order: [[{model: db.Produto, as: 'produto'}, 'descricao', 'ASC']]
         })
 
+        const empresa = req.body.codemp == 1 ? 'GASTROBAR' : req.body.codemp == 2 ? 'RESTAURANTE GUARANY' : 'RESTAURANTE 242'
+
         const report = await Report.generate({
           report: 'movimentacao.html',
           title: 'Relatório de movimentação',
           landscape: true,
           data: {
             items: items
-          }
+          },
+          empresa
         });
 
         res.status(200).json({pdf: report})

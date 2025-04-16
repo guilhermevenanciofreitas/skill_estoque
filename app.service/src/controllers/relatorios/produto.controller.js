@@ -73,12 +73,15 @@ export class RelatorioProdutoController {
           order: [['descricao', 'ASC']]
         })
 
+        const empresa = req.body.codemp == 1 ? 'GASTROBAR' : req.body.codemp == 2 ? 'RESTAURANTE GUARANY' : 'RESTAURANTE 242'
+
         const report = await Report.generate({
           report: 'produto-estoque.html',
           title: 'Relatório de produtos',
           data: {
             items: produtos
-          }
+          },
+          empresa
         });
 
         res.status(200).json({pdf: report})

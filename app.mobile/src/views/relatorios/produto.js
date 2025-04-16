@@ -4,8 +4,13 @@ import {
 } from 'react-native';
 import { Service } from '../../service';
 import { CustomInput } from '../../controls/CustomInput';
+import { codemp } from '../login/login';
+import { Empresa } from '../../app';
+import DisplayAlert from '../../controls/DisplayAlert';
 
 export const RelatorioProdutoList = () => {
+
+  const [displayAlert, setDisplayAlert] = useState(false)
 
   const [search, setSearch] = useState('')
 
@@ -19,8 +24,13 @@ export const RelatorioProdutoList = () => {
     setLoading(true);
     try {
       console.log({search: {picker: 'descricao', input: search}})
-      const result = await new Service().Post('relatorios/produto/lista', {search: {picker: 'descricao', input: search}});
+      const result = await new Service().Post('relatorios/produto/lista', {search: {picker: 'descricao', input: search}, codemp});
       setProdutos(result.data?.response?.rows || []);
+
+      if (result.data?.response?.rows.length == 0) {
+        setDisplayAlert(true)
+      }
+
     } catch (error) {
       alert('Erro ao carregar os dados: ' + error.message);
     } finally {
@@ -73,6 +83,17 @@ export const RelatorioProdutoList = () => {
 
   return (
     <View style={styles.container}>
+
+      <DisplayAlert
+        visible={displayAlert}
+        title="Atenção"
+        message="Nenhum registro encontrado!"
+        onClose={() => setDisplayAlert(false)}
+      />
+
+      <View style={{padding: 10}}>
+        Empresa: {Empresa()}
+      </View>
 
       <CustomInput label={'Descrição'} value={search} onChangeText={(search) => {
         setSearch(search.toUpperCase())

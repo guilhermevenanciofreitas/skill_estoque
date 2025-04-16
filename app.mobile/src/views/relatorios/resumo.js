@@ -4,9 +4,16 @@ import {
 } from 'react-native';
 import { Service } from '../../service';
 import DateRangePicker from '../../controls/DateRangePicker';
+import SelectInput from '../../controls/CustomSelect';
+import { codemp } from '../login/login';
+import { Empresa } from '../../app';
+import DisplayAlert from '../../controls/DisplayAlert';
 
 export const RelatorioResumoList = () => {
   
+  const [displayAlert, setDisplayAlert] = useState(false)
+  const [displayMessage, setDisplayMessage] = useState('')
+
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
 
@@ -18,19 +25,27 @@ export const RelatorioResumoList = () => {
   const fetchData = async () => {
 
     if (!startDate) {
-      alert("Informe a data inicial!")
+      setDisplayMessage("Informe a data inicial!")
+      setDisplayAlert(true)
       return
     }
 
     if (!endDate) {
-      alert("Informe a data final!")
+      setDisplayMessage("Informe a data final!")
+      setDisplayAlert(true)
       return
     }
 
     setLoading(true);
     try {
-      const result = await new Service().Post('relatorios/resumo/lista', {inicio: startDate, final: endDate});
+      const result = await new Service().Post('relatorios/resumo/lista', {inicio: startDate, final: endDate, codemp: codemp});
       setProdutos(result.data?.response?.resumo || []);
+
+      if (result.data?.response?.resumo.length == 0) {
+        setDisplayMessage("Nenhum resultado encontrado!")
+        setDisplayAlert(true)
+      }
+      
     } catch (error) {
       alert('Erro ao carregar os dados: ' + error.message);
     } finally {
@@ -68,6 +83,17 @@ export const RelatorioResumoList = () => {
 
   return (
     <View style={styles.container}>
+
+      <DisplayAlert
+        visible={displayAlert}
+        title="Atenção"
+        message={displayMessage}
+        onClose={() => setDisplayAlert(false)}
+      />
+
+      <View style={{padding: 10}}>
+        Empresa: {Empresa()}
+      </View>
 
       <DateRangePicker startDate={startDate} endDate={endDate} onChange={(startDate, endDate) => {
         setStartDate(startDate)

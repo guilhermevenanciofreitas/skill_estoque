@@ -23,6 +23,13 @@ const fields = [
 
 export class RelatorioMovimentacao extends React.Component {
 
+  state = {
+    request: {
+      inicio: dayjs().format('YYYY-MM-01'),
+      final: dayjs().format('YYYY-MM-DD'),
+    }
+  }
+
   ReportViewer = React.createRef()
 
   componentDidMount = () => {

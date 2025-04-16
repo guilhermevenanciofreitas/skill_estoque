@@ -28,8 +28,6 @@ export class CadastrosLocalController {
 
         const where = []
 
-        where.push({'codemp': req.body.codemp})
-
         if (search?.input) {
 
           if (search?.picker == 'descricao') {
@@ -97,7 +95,6 @@ export class CadastrosLocalController {
       let local = {
         codloc: req.body.codloc,
         descricao: req.body.descricao,
-        codemp: req.body.codemp
       }
   
       const db = new AppContext()

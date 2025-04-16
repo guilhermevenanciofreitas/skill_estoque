@@ -67,12 +67,15 @@ export class RelatorioResumoController {
           {type: Sequelize.QueryTypes.SELECT}
         )
 
+        const empresa = req.body.codemp == 1 ? 'GASTROBAR' : req.body.codemp == 2 ? 'RESTAURANTE GUARANY' : 'RESTAURANTE 242'
+
         const report = await Report.generate({
           report: 'resumo.html',
           title: 'Resumo de movimentação',
           data: {
             items: resumo
-          }
+          },
+          empresa
         });
 
         res.status(200).json({pdf: report})

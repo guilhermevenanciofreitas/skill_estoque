@@ -9,9 +9,8 @@ const Brand = props => {
 
   return (
     <Stack className="brand" {...props}>
-      <Logo height={26} style={{ marginTop: 6 }} />
       <Link to="/">
-        <span style={{ marginLeft: 14 }}>{Authorization?.companyId == 1 ? 'GASTROBAR' : Authorization?.companyId == 1 ? 'LANCH-2' : 'LANCH-3'}</span>
+        <span style={{ marginTop: '100px', fontSize: 14 }}>{Authorization?.companyId == 1 ? 'GASTROBAR' : Authorization?.companyId == 2 ? 'RESTAURANTE GUARANY' : 'RESTAURANTE 242'}</span>
       </Link>
     </Stack>
   );

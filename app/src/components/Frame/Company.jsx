@@ -11,7 +11,7 @@ const Company = () => {
       <div style={{float: 'left'}}>
       <Brand />
       </div>
-      <div style={{float: 'right', padding: '20px', cursor: 'pointer'}} onClick={() => {
+      <div style={{float: 'right', padding: '12px', cursor: 'pointer', fontSize: 14}} onClick={() => {
         localStorage.removeItem("Authorization")
       }}>
         SAIR

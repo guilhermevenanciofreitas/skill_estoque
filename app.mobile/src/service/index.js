@@ -6,6 +6,8 @@ export class Service {
 
         const env = 'https://vps53636.publiccloud.com.br:1000/api/'
 
+        //const env = 'http://localhost:1001/api/'
+
         let config = {};
 
         let authorization = JSON.parse(localStorage.getItem('Authorization'))

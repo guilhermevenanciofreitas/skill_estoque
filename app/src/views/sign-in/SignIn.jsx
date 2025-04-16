@@ -13,8 +13,8 @@ export class SignIn extends React.Component {
   state = {
     company: [
       {value: 1, label: 'GASTROBAR'},
-      {value: 2, label: 'LANCH-2'},
-      {value: 3, label: 'LANCH-3'},
+      {value: 2, label: 'RESTAURANTE GUARANY'},
+      {value: 3, label: 'RESTAURANTE 242'},
     ]
   }
 

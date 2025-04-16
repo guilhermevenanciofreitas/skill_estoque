@@ -75,14 +75,15 @@ export class RelatorioLocalController {
           order: [['descricao', 'asc']]
         })
 
-        console.log(locais)
+        const empresa = req.body.codemp == 1 ? 'GASTROBAR' : req.body.codemp == 2 ? 'RESTAURANTE GUARANY' : 'RESTAURANTE 242'
 
         const report = await Report.generate({
           report: 'produto-local.html',
           title: 'Relatório de produtos',
           data: {
             items: locais
-          }
+          },
+          empresa
         })
         
         res.status(200).json({pdf: report, locais})
