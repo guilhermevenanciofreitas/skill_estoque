@@ -177,6 +177,52 @@ export class EntradaSaidaController {
 
         await db.transaction(async (transaction) => {
 
+          const tipoEntSai = await db.TipoEntSai.findOne({where: [{codentsai: movCab.codentsai}], transaction})
+
+          for (const item of movItems) {
+
+
+            //Entrada
+            if (tipoEntSai.tipo == 'E') {
+
+              if (!item.dest) {
+                const produto = await db.Produto.findOne({attributes: ['codprod', 'descricao'], where: [{codprod: item.produto?.codprod}], transaction})
+                res.status(201).json({message: `Item: ${produto.codprod} - ${produto.descricao} deve ser informado o DESTINO!`})
+                return
+              }
+
+            }
+
+            //Saída
+            if (tipoEntSai.tipo == 'S') {
+
+              if (!item.orig) {
+                const produto = await db.Produto.findOne({attributes: ['codprod', 'descricao'], where: [{codprod: item.produto?.codprod}], transaction})
+                res.status(201).json({message: `Item: ${produto.codprod} - ${produto.descricao} deve ser informado a ORIGEM!`})
+                return
+              }
+
+            }
+
+            //Transferência
+            if (tipoEntSai.tipo == 'A') {
+
+              if (!item.orig) {
+                const produto = await db.Produto.findOne({attributes: ['codprod', 'descricao'], where: [{codprod: item.produto?.codprod}], transaction})
+                res.status(201).json({message: `Item: ${produto.codprod} - ${produto.descricao} deve ser informado a ORIGEM!`})
+                return
+              }
+
+              if (!item.dest) {
+                const produto = await db.Produto.findOne({attributes: ['codprod', 'descricao'], where: [{codprod: item.produto?.codprod}], transaction})
+                res.status(201).json({message: `Item: ${produto.codprod} - ${produto.descricao} deve ser informado o DESTINO!`})
+                return
+              }
+
+            }
+
+          }
+
           if (_.isNil(movCab.transacao)) {
 
             const lastTransacao = await db.MovCab.max('transacao', { transaction })
@@ -222,9 +268,9 @@ export class EntradaSaidaController {
 
           await this.atualizarEstoque(1, movCab.transacao, _.cloneDeep(movItems), req.body.codemp, transaction) // Aplica novo estoque
 
-        })
+          res.status(200).json(movCab)
 
-        res.status(200).json(movCab)
+        })
 
       } catch (error) {
         Exception.error(res, error)
@@ -242,15 +288,9 @@ export class EntradaSaidaController {
     
     for (const item of movItems) {
 
-      console.log(item.dataValues)
-
       const fator = parseFloat(item.qtde) * multiplicador
 
       if (movCab.tipoEntSai.tipo === 'E') {
-
-        if (!item.dest) {
-          item.dest = item.orig
-        }
 
         let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction })
 
@@ -268,10 +308,6 @@ export class EntradaSaidaController {
           )
         }
       } else if (movCab.tipoEntSai.tipo === 'S') {
-
-        if (!item.orig) {
-          item.orig = item.dest
-        }
 
         let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction })
 

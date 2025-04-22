@@ -106,6 +106,12 @@ class ViewEntradaSaida extends React.Component {
             }
 
             const result = await new Service().Post('entrada-saida/salvar', movCab)
+
+            if (result.status == 201) {
+                Swal.fire({title: '', text: result.data.message, icon: 'warning', confirmButtonText: 'OK'})
+                return
+            }
+
             await toaster.push(<Message showIcon type='success'>Salvo com sucesso!</Message>, {placement: 'topEnd', duration: 5000 })
             this.viewModal.current?.close(result.data)
            
@@ -146,6 +152,20 @@ class ViewEntradaSaida extends React.Component {
 
             if (parseInt(this.state?.orig?.codloc || 0) != 0) {
                 Swal.fire({title: '', text: 'Para ENTRADA deve ser informado apenas o DESTINO!', icon: 'warning', confirmButtonText: 'OK'})
+                return
+            }
+
+        }
+
+        if (this.state?.tipoEntSai?.tipo == 'A') {
+
+            if (parseInt(this.state?.orig?.codloc || 0) == 0) {
+                Swal.fire({title: '', text: 'Para TRANSFERÊNCIA deve ser informado a ORIGEM!', icon: 'warning', confirmButtonText: 'OK'})
+                return
+            }
+
+            if (parseInt(this.state?.dest?.codloc || 0) == 0) {
+                Swal.fire({title: '', text: 'Para TRANSFERÊNCIA deve ser informado a DESTINO!', icon: 'warning', confirmButtonText: 'OK'})
                 return
             }
 
@@ -210,7 +230,7 @@ class ViewEntradaSaida extends React.Component {
 
     onDeleteItem = async (index) => {
 
-        const r = await Swal.fire({title: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
+        const r = await Swal.fire({text: 'Tem certeza que deseja excluir ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim', cancelButtonText: 'Não'})
         if (!r.isConfirmed) return
 
         const items = this.state?.items.filter(item => item.index !== index)
