@@ -71,7 +71,7 @@ class RelatorioProduto extends React.Component {
     { selector: (row) => row.codprod, name: 'Código', minWidth: '100px', maxWidth: '100px'},
     { selector: (row) => row.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px'},
     { selector: (row) => row.unidade, name: 'Unidade', minWidth: '100px', maxWidth: '100px'},
-    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.saldo_total), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
+    { selector: (row) => new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(_.sum(_.map(row.estoques, (c) => c.saldo))), name: 'Estoque', minWidth: '120px', maxWidth: '120px', right: true},
   ]
 
   render = () => {

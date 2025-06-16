@@ -63,7 +63,7 @@ export class RelatorioProdutoController {
         where.push({'$estoques.codemp$': req.body.codemp})
 
         const produtos = await db.Produto.findAll({
-          attributes: ['codprod', 'descricao', 'unidade', [Sequelize.fn('SUM', Sequelize.col('estoques.saldo')), 'saldo_total'], 'custo'],
+          attributes: ['codprod', 'descricao', 'unidade', 'custo'],
           include: [
             {model: db.Estoque, as: 'estoques', attributes: ['saldo']}
           ],
