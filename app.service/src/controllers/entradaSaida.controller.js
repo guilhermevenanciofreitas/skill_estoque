@@ -181,7 +181,6 @@ export class EntradaSaidaController {
 
           for (const item of movItems) {
 
-
             //Entrada
             if (tipoEntSai.tipo == 'E') {
 
@@ -290,7 +289,7 @@ export class EntradaSaidaController {
 
       const fator = parseFloat(item.qtde) * multiplicador
 
-      if (movCab.tipoEntSai.tipo === 'E') {
+      if (movCab.tipoEntSai.tipo === 'E' && item.dest) {
 
         let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction })
 
@@ -307,7 +306,8 @@ export class EntradaSaidaController {
             { transaction }
           )
         }
-      } else if (movCab.tipoEntSai.tipo === 'S') {
+        
+      } else if (movCab.tipoEntSai.tipo === 'S' && item.orig) {
 
         let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction })
 
@@ -320,7 +320,7 @@ export class EntradaSaidaController {
           )
         }
 
-      } else if (movCab.tipoEntSai.tipo === 'A') {
+      } else if (movCab.tipoEntSai.tipo === 'A' && item.orig && item.dest) {
 
         let estoqueOrig = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.orig.codloc, codemp }, transaction })
         let estoqueDest = await db.Estoque.findOne({ where: { codprod: item.produto.codprod, codloc: item.dest.codloc, codemp }, transaction })
