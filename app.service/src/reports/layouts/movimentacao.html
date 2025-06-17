@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatório</title>
     <style>
-
       body {
         font-family: Arial, sans-serif;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin: 20px;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
       }
+
       th, td {
         border: 0.4px solid black;
         padding: 2px;
-        text-align: left;
         font-size: 12px;
       }
-      th {
-        padding: 2px;
-        text-align: left;
-        font-size: 12px;
+
+      td.align-right, th.align-right {
+        text-align: right;
       }
+
       .summary {
         margin-top: 40px;
         page-break-before: always;
       }
+
+      .summary h3 {
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   <body>
-    
+    <% 
+      let totalQtde = 0;
+      let totalValor = 0;
+    %>
+
     <table>
       <thead>
         <tr>
@@ -42,27 +48,29 @@
           <th>Emissão</th>
           <th>Código</th>
           <th>Nome</th>
-          <th style="text-align: right;">Qtde</th>
-          <th style="text-align: right;">Preço Unit.</th>
-          <th style="text-align: right;">Total</th>
+          <th class="align-right">Qtde</th>
+          <th class="align-right">Preço Unit.</th>
+          <th class="align-right">Total</th>
           <th>Origem</th>
           <th>Destino</th>
         </tr>
       </thead>
       <tbody>
-        <% data.items.forEach(item => { %>
+        <% data.items.forEach(item => {
+             const qtde = item.dataValues.qtde || 0;
+             const punit = item.dataValues.punit || 0;
+             const total = qtde * punit;
+             totalQtde += qtde;
+             totalValor += total;
+        %>
           <tr>
             <td><%= item.movCab?.transacao %></td>
-            <td><%= new Intl.DateTimeFormat('pt-BR', { 
-              day: '2-digit', 
-              month: '2-digit', 
-              year: 'numeric' 
-            }).format(new Date(item.movCab?.emissao)).replace(',', '') %></td>
+            <td><%= new Intl.DateTimeFormat('pt-BR').format(new Date(item.movCab?.emissao)) %></td>
             <td><%= item.codprod %></td>
             <td><%= item.produto.descricao %></td>
-            <td style="text-align: right;"><%= item.dataValues.qtde?.toFixed(2) || '0.00' %></td>
-            <td style="text-align: right;"><%= item.dataValues.punit?.toFixed(2) || '0.00' %></td>
-            <td style="text-align: right;"><%= (item.dataValues.qtde * item.dataValues.punit)?.toFixed(2) || '0.00' %></td>
+            <td class="align-right"><%= qtde.toFixed(2) %></td>
+            <td class="align-right"><%= punit.toFixed(2) %></td>
+            <td class="align-right"><%= total.toFixed(2) %></td>
             <td><%= item.orig?.descricao %></td>
             <td><%= item.dest?.descricao %></td>
           </tr>
@@ -70,5 +78,24 @@
       </tbody>
     </table>
 
+    <div class="summary">
+      <h3>Resumo</h3>
+      <table>
+        <tr>
+          <th class="align-right">Total Qtde</th>
+          <td class="align-right"><%= totalQtde.toFixed(2) %></td>
+        </tr>
+        <tr>
+          <th class="align-right">Preço Unit. Médio</th>
+          <td class="align-right">
+            <%= totalQtde > 0 ? (totalValor / totalQtde).toFixed(2) : '0.00' %>
+          </td>
+        </tr>
+        <tr>
+          <th class="align-right">Total Geral</th>
+          <td class="align-right"><%= totalValor.toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
   </body>
 </html>

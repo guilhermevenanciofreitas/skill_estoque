@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatório</title>
     <style>
-
       body {
         font-family: Arial, sans-serif;
         margin-left: 20px;
@@ -19,46 +18,78 @@
       th, td {
         border: 0.4px solid black;
         padding: 2px;
-        text-align: left;
         font-size: 12px;
       }
       th {
-        padding: 2px;
         text-align: left;
-        font-size: 12px;
       }
       .summary {
         margin-top: 40px;
         page-break-before: always;
       }
+      .text-right {
+        text-align: right;
+      }
     </style>
   </head>
   <body>
-    
+
+    <% 
+      let totalCusto = 0;
+      let totalCustoMed = 0;
+      let totalUltComp = 0;
+    %>
+
     <table>
       <thead>
         <tr>
           <th>ID</th>
           <th>Nome</th>
           <th>Unid</th>
-          <th style="text-align: right;">Custo</th>
-          <th style="text-align: right;">Custo Médio</th>
-          <th style="text-align: right;">Ult. Compra</th>
+          <th class="text-right">Custo</th>
+          <th class="text-right">Custo Médio</th>
+          <th class="text-right">Ult. Compra</th>
         </tr>
       </thead>
       <tbody>
-        <% data.items.forEach(item => { %>
+        <% data.items.forEach(item => { 
+             const custo = item.custo || 0;
+             const custoMed = item.customed || 0;
+             const ultComp = item.ultcomp || 0;
+
+             totalCusto += custo;
+             totalCustoMed += custoMed;
+             totalUltComp += ultComp;
+        %>
           <tr>
             <td><%= item.codprod %></td>
             <td><%= item.descricao %></td>
             <td><%= item.unidade %></td>
-            <td style="text-align: right;"><%= item.custo?.toFixed(2) || '0.00' %></td>
-            <td style="text-align: right;"><%= item.customed?.toFixed(2) || '0.00' %></td>
-            <td style="text-align: right;"><%= item.ultcomp?.toFixed(2) || '0.00' %></td>
+            <td class="text-right"><%= custo.toFixed(2) %></td>
+            <td class="text-right"><%= custoMed.toFixed(2) %></td>
+            <td class="text-right"><%= ultComp.toFixed(2) %></td>
           </tr>
         <% }); %>
       </tbody>
     </table>
+
+    <div class="summary">
+      <h3>Resumo Geral</h3>
+      <table>
+        <tr>
+          <th class="text-right">Total Custo</th>
+          <td class="text-right"><%= totalCusto.toFixed(2) %></td>
+        </tr>
+        <tr>
+          <th class="text-right">Total Custo Médio</th>
+          <td class="text-right"><%= totalCustoMed.toFixed(2) %></td>
+        </tr>
+        <tr>
+          <th class="text-right">Total Última Compra</th>
+          <td class="text-right"><%= totalUltComp.toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
 
   </body>
 </html>

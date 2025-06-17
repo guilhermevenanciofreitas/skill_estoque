@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatório</title>
     <style>
-
       body {
         font-family: Arial, sans-serif;
         margin-left: 20px;
@@ -16,7 +15,8 @@
         width: 100%;
         border-collapse: collapse;
       }
-      th, td {
+      th,
+      td {
         border: 0.4px solid black;
         padding: 2px;
         text-align: left;
@@ -31,16 +31,26 @@
         margin-top: 40px;
         page-break-before: always;
       }
+      .text-right {
+        text-align: right;
+      }
     </style>
   </head>
   <body>
-    
+
+    <% 
+      let totalValor = 0;
+      data.items.forEach(item => {
+        totalValor += item.valor || 0;
+      });
+    %>
+
     <table>
       <thead>
         <tr>
           <th>Cod.ID</th>
           <th>Operação</th>
-          <th style="text-align: right;">Valor</th>
+          <th class="text-right">Valor</th>
         </tr>
       </thead>
       <tbody>
@@ -48,11 +58,21 @@
           <tr>
             <td><%= item.codentsai %></td>
             <td><%= item.operacao %></td>
-            <td style="text-align: right;"><%= item.valor.toFixed(2) || '0.00' %></td>
+            <td class="text-right"><%= (item.valor || 0).toFixed(2) %></td>
           </tr>
         <% }); %>
       </tbody>
     </table>
+
+    <div class="summary">
+      <h3>Resumo Geral</h3>
+      <table>
+        <tr>
+          <th class="text-right">Total Valor</th>
+          <td class="text-right"><%= totalValor.toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
 
   </body>
 </html>
