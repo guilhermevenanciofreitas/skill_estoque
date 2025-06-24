@@ -6,52 +6,80 @@ import { Report } from "../../reports/index.js"
 export class RelatorioMovimentacaoController {
 
   lista = async (req, res) => {
-    //await Authorization.verify(req, res).then(async ({company}) => {
-      try {
+    try {
+      const db = new AppContext();
+      const { codemp, inicio, final, tipoEntSai, produto } = req.body;
 
-        const db = new AppContext()
+      const where = [];
 
-        const where = []
+      where.push({ '$movCab.codemp$': codemp });
 
-        where.push({'$movCab.codemp$': req.body.codemp})
-
-        where.push({'$movCab.emissao$': {[db.Sequelize.Op.between]: [req.body.inicio, req.body.final]}})
-
-        if (req.body.tipoEntSai?.codentsai) {
-          where.push({'$movCab.codentsai$': req.body.tipoEntSai?.codentsai})
+      where.push({
+        '$movCab.emissao$': {
+          [db.Sequelize.Op.between]: [inicio, final]
         }
+      });
 
-        if (req.body.produto?.codprod) {
-          where.push({'$movItem.codprod$': req.body.produto?.codprod})
-        }
-
-        const items = await db.MovItem.findAndCountAll({
-          attributes: ['codprod', 'punit', 'qtde'],
-          include: [
-            {model: db.MovCab, as: 'movCab', attributes: ['transacao', 'emissao'], include: [
-              {model: db.Parceiro, as: 'parceiro', attributes: ['nome']}
-            ]},
-            {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
-            {model: db.Local, as: 'orig', attributes: ['descricao']},
-            {model: db.Local, as: 'dest', attributes: ['descricao']}
-          ],
-          where,
-          order: [[{model: db.Produto, as: 'produto'}, 'descricao', 'ASC']]
-        })
-
-        res.status(200).json({
-          response: {
-            rows: items.rows, count: items.count
-          }
-        })
-
-      } catch (error) {
-        Exception.error(res, error)
+      if (tipoEntSai?.codentsai) {
+        where.push({ '$movCab.codentsai$': tipoEntSai.codentsai });
       }
-    //}).catch((error) => {
-    //  res.status(400).json({message: error.message})
-    //})
-  }
+
+      if (produto?.codprod) {
+        where.push({ '$movItem.codprod$': produto.codprod });
+      }
+
+      const items = await db.MovItem.findAndCountAll({
+        attributes: ['codprod', 'punit', 'qtde'],
+        include: [
+          {
+            model: db.MovCab,
+            as: 'movCab',
+            attributes: ['transacao', 'emissao'],
+            include: [
+              {
+                model: db.Parceiro,
+                as: 'parceiro',
+                attributes: ['nome']
+              },
+              {
+                model: db.TipoEntSai,
+                as: 'tipoEntSai',
+                attributes: ['tipo', 'descricao']
+              }
+            ]
+          },
+          {
+            model: db.Produto,
+            as: 'produto',
+            attributes: ['codprod', 'descricao']
+          },
+          {
+            model: db.Local,
+            as: 'orig',
+            attributes: ['descricao']
+          },
+          {
+            model: db.Local,
+            as: 'dest',
+            attributes: ['descricao']
+          }
+        ],
+        where,
+        order: [[{ model: db.Produto, as: 'produto' }, 'descricao', 'ASC']]
+      });
+
+      res.status(200).json({
+        response: {
+          rows: items.rows,
+          count: items.count
+        }
+      });
+
+    } catch (error) {
+      Exception.error(res, error);
+    }
+  };
+
 
   imprimir = async (req, res) => {
     //await Authorization.verify(req, res).then(async ({company}) => {
@@ -77,7 +105,12 @@ export class RelatorioMovimentacaoController {
           attributes: ['codprod', 'punit', 'qtde'],
           include: [
             {model: db.MovCab, as: 'movCab', attributes: ['transacao', 'emissao'], include: [
-              {model: db.Parceiro, as: 'parceiro', attributes: ['nome']}
+              {model: db.Parceiro, as: 'parceiro', attributes: ['nome']},
+              {
+                model: db.TipoEntSai,
+                as: 'tipoEntSai',
+                attributes: ['tipo', 'descricao']
+              }
             ]},
             {model: db.Produto, as: 'produto', attributes: ['codprod', 'descricao']},
             {model: db.Local, as: 'orig', attributes: ['descricao']},

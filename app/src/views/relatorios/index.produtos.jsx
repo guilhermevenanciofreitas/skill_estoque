@@ -43,7 +43,7 @@ class RelatorioProduto extends React.Component {
 
       Loading.Show('Imprimindo...')
 
-      const report = await new Service().Post('relatorios/produto/imprimir')
+      const report = await new Service().Post('relatorios/produto/imprimir', this.state.request)
       
       this.ReportViewer.current?.visualize(report.data.pdf)
 

@@ -4,6 +4,7 @@ export class Estoque {
 
   codprod = {
     field: 'codprod',
+    primaryKey: true,
     type: Sequelize.NUMBER,
   }
 

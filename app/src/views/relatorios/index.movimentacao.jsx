@@ -63,7 +63,8 @@ export class RelatorioMovimentacao extends React.Component {
   }
 
   columns = [
-    { selector: (row) => row.movCab?.transacao, name: 'Cod.ID', minWidth: '100px', maxWidth: '100px', style: {padding: '0px'}},
+    { selector: (row) => row.movCab?.transacao, name: 'Cod.ID', minWidth: '70px', maxWidth: '70px', style: {padding: '0px'}},
+    { selector: (row) => `${row.movCab?.tipoEntSai?.tipo} - ${row.movCab?.tipoEntSai?.descricao}`, name: 'Tipo', minWidth: '130px', maxWidth: '130px', style: {padding: '0px'}},
     { selector: (row) => row.movCab?.emissao ? dayjs(row.emissao).format('DD/MM/YYYY') : '', name: 'Emissão', minWidth: '90px', maxWidth: '90px', style: {padding: '0px'}},
     { selector: (row) => row.produto?.codprod, name: 'Código', center: true, minWidth: '100px', maxWidth: '100px', style: {padding: '0px'}},
     { selector: (row) => row.produto?.descricao, name: 'Descrição', minWidth: '250px', maxWidth: '250px', style: {padding: '0px'}},

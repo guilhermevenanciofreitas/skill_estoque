@@ -45,6 +45,7 @@
       <thead>
         <tr>
           <th>Cod.ID</th>
+          <th>Tipo</th>
           <th>Emissão</th>
           <th>Código</th>
           <th>Nome</th>
@@ -65,6 +66,7 @@
         %>
           <tr>
             <td><%= item.movCab?.transacao %></td>
+            <td><%= item.movCab?.tipoEntSai?.tipo %> - <%= item.movCab?.tipoEntSai?.descricao %></td>
             <td><%= new Intl.DateTimeFormat('pt-BR').format(new Date(item.movCab?.emissao)) %></td>
             <td><%= item.codprod %></td>
             <td><%= item.produto.descricao %></td>
